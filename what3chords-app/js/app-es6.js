@@ -29,7 +29,7 @@ const START_VIEW = {
   latitude: 0,
   longitude: 0,
   zoom: 2,
-  maxZoom: 19,
+  maxZoom: 23,
   minZoom: 1,
   pitch: 0,
   bearing: 0,
@@ -82,12 +82,12 @@ $.when(
   })
 ).done( function() {
   clearLoader(); // clear the spinner
-  processChords();
+  processChordsData();
   render();
 });
 
 let CHORDS = [];
-function processChords() {
+function processChordsData() {
   let chordsFlattened = {};
   for (let [key, variants] of Object.entries(DATA.chords)) {
     for (let v of variants) {
@@ -144,7 +144,7 @@ function setTooltip(object, x, y, c) {
     el.style.display = "block";
 
     playChord(CHORDS[abc[0]].midi,CHORDS[abc[1]].midi,CHORDS[abc[2]].midi);
-
+    // el.style.display = "none";
   } else {
     el.style.visibility = "hidden";
     el.style.display = "none";
@@ -152,15 +152,22 @@ function setTooltip(object, x, y, c) {
 
 }
 
-
+// get a 3 digit sequence of 0..2040 indices into the Array of chords
 function getCode(c) {
-  let xy = doTheShuffle(c);
-  let x = Math.round(
-    rescale(xy[0], -180, 180, 0, 130400)
-  );
-  let y =  Math.round(
-    rescale(xy[1], -WEB_MERC_LIMIT, WEB_MERC_LIMIT, 0, 65200)
-  );
+  // get x and y values that are int 0..130400, 0..65200
+  let xy = [
+    Math.round(rescale(c[0], -180, 180, 0, 130400)),
+    Math.round(rescale(c[1], -WEB_MERC_LIMIT, WEB_MERC_LIMIT, 0, 65200))
+  ];
+  // rescale to unit square
+  xy = [
+    rescale(xy[0], 0, 130400, 0, 1),
+    rescale(xy[1], 0, 65200, 0, 1)
+  ]
+  // shuffle them
+  xy = doTheShuffle(xy);
+  let x = Math.round(rescale(xy[0], 0, 1, 0, 130400));
+  let y = Math.round(rescale(xy[1], 0, 1, 0, 65200));
   let i = x + y * 130400;
   let p = Math.floor(i / 2041 / 2041);
   let q = Math.floor((i - p * 2041 * 2041) / 2041);
@@ -172,18 +179,14 @@ function divide(x, y) {
   return [Math.floor(x / y), x % y];
 }
 
+// shuffle the lon lat in a unit square using Arnold's Cat, see
+// http://southosullivan.com/misc/what3chords-app/
 function doTheShuffle(c) {
-  let xy = arnoldsCat(
-    [rescale(c[0], -180, 180, 0, 1),
-     rescale(c[1], -WEB_MERC_LIMIT, WEB_MERC_LIMIT, 0, 1)]
-  );
+  let xy = c;
   for (let i = 0; i < 15; i ++) {
     xy = arnoldsCat(xy);
   }
-  return [
-     rescale(xy[0], 0, 1, -180, 180),
-     rescale(xy[1], 0, 1, -WEB_MERC_LIMIT, WEB_MERC_LIMIT)
-   ];
+  return xy;
 }
 
 function rescale(x, xmin, xmax, mn, mx) {
@@ -195,15 +198,14 @@ function arnoldsCat(xy) {
 }
 
 function playChord(notes1, notes2, notes3){
- notes1 = notesToFreq(notes1);
- notes2 = notesToFreq(notes2);
- notes3 = notesToFreq(notes3);
+  notes1 = notesToFreq(notes1);
+  notes2 = notesToFreq(notes2);
+  notes3 = notesToFreq(notes3);
 
- const now = Tone.now()
- synth.triggerAttackRelease(notes1, 1, now);
- synth.triggerAttackRelease(notes2, 1, now + 1.05);
- synth.triggerAttackRelease(notes3, 1, now + 2.1);
-
+  const now = Tone.now()
+  synth.triggerAttackRelease(notes1, 1, now);
+  synth.triggerAttackRelease(notes2, 1, now + 1.05);
+  synth.triggerAttackRelease(notes3, 1, now + 2.1);
 }
 
 function notesToFreq(n){
