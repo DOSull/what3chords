@@ -2,11 +2,11 @@
 
 const WEB_MERC_LIMIT = 85.051129;
 
-var dist = new Tone.Distortion(0.8).toMaster();
+var dist = new Tone.Distortion(1).toMaster();
 const synth = new Tone.PolySynth(6, Tone.Synth, {
 oscillator : {
-  type : "sine",
-  volume : "0"
+  type : "sawtooth6",
+  volume : "2"
 }
 }).connect(dist);
 
