@@ -1,0 +1,199 @@
+body {
+  height: 100vh;
+  width: 100vw;
+  margin: 0px;
+  font-family: sans-serif;
+  font-weight: 400;
+  font-size: 15px;
+  color: white;
+  background-color: rgba(0, 0, 0, 0);
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+.loader {
+  z-index: 5;
+  pointer-events: none;
+  background-color: rgba(51, 51, 102, 0.3);
+  height: 300px;
+  width: 600px;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+}
+.tooltip {
+  position: absolute;
+  z-index: 1;
+  pointer-events: none;
+  color: white;
+  background-color: rgba(51, 51, 102, 0.65);
+  border-radius: 5px;
+  padding: 5px;
+  font-family: Sans-serif;
+  font-weight: 100;
+  font-size: 15px;
+}
+.info-panel {
+  height: 60%;
+  font-size: 80%;
+  border-radius: 2px;
+  padding: 1px 5px 1px 5px;
+  background-color: rgba(51, 51, 102, 0.35);
+}
+.control-panel {
+  font-size: 15px;
+  font-weight: 400;
+  background-color: rgba(0, 0, 0, 0);
+  z-index: 1;
+}
+.control-panel-section {
+  font-size: 13px;
+  font-weight: 400;
+  background-color: rgba(102, 102, 153, 0.75);
+  padding: 2px;
+  margin: 2px 0px 0px 2px;
+  z-index: 2;
+}
+.control {
+  font-size: 11px;
+  background-color: rgba(51, 51, 102, 0.65);
+  border-radius: 2px;
+  margin: 2px;
+  padding: 2px;
+  z-index: 3;
+  vertical-align: middle;
+
+}
+.left{
+  float: left;
+  width: 50%;
+  overflow: auto;
+}
+a{
+color: #ff0;
+text-decoration: none;
+}
+a:visited{
+color: #ff0;
+}
+a:hover{
+text-decoration: underline;
+}
+.close{
+margin: 2px 0px;
+}
+.info-title{
+  margin: 3px;
+}
+.control:hover{
+  background-color: rgba(255, 255, 255, 0.1);
+}
+.bluish{
+  background-color: #06f;
+  opacity: 0.38;
+}
+.greenish{
+  background-color: #0c6;
+  opacity: 0.5;
+}
+.pinkish{
+  background-color: #c06;
+  opacity: 0.38;
+}
+.orangey{
+  background-color: #f60;
+  opacity: 0.5;
+}
+#loader {
+  position: absolute;
+  align-self: center;
+  left: 50%;
+  top: 50%;
+  z-index: 2;
+  width: 150px;
+  height: 150px;
+  margin: -150px 0 0 -150px;
+  border: 75px solid rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  border-top: 75px solid rgba(0 ,102, 255, 0.38);
+  border-right: 75px solid rgba(0, 204, 102, 0.5);
+  border-bottom: 75px solid rgba(204, 0, 102, 0.38);
+  border-left: 75px solid rgba(255 ,102, 0, 0.5);
+  -webkit-animation: spin 2s linear infinite;
+  animation: spin 2s linear infinite;
+  background-color: rgba(0,0,0,0);
+}
+
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Add animation to "page content" */
+.animate-bottom {
+  position: relative;
+  -webkit-animation-name: animatebottom;
+  -webkit-animation-duration: 1s;
+  animation-name: animatebottom;
+  animation-duration: 1s
+}
+
+@-webkit-keyframes animatebottom {
+  from { bottom:-100px; opacity:0 }
+  to { bottom:0px; opacity:1 }
+}
+
+@keyframes animatebottom {
+  from{ bottom:-100px; opacity:0 }
+  to{ bottom:0; opacity:1 }
+}
+
+#loaderDiv {
+  display: flex;
+  width: 300px;
+  height: 300px;
+  justify-content: center;
+  align-items: center;
+  /* display: block; */
+  /* text-align: center; */
+}
+
+/* Large desktop */
+/* @media (min-width: 1200px) { */
+  /* font-size: 18px; */
+/* } */
+
+/* Portrait tablet to landscape and desktop */
+/* @media (min-width: 768px) and (max-width: 979px) { */
+  /* font-size: 16px; */
+/* } */
+
+/* Landscape phone to portrait tablet */
+/* @media (max-width: 767px) { */
+  /* font-size: 14px; */
+/* } */
+
+/* Landscape phones and down */
+/* @media (max-width: 480px) { */
+  /* font-size: 12px; */
+/* } */
+.rotate-45 {
+  -webkit-transform: rotate(-45deg);
+  -moz-transform: rotate(-45deg);
+  -o-transform: rotate(-45deg);
+  transform: rotate(-45deg);
+  display: inline-block;
+}
+ul {
+  padding-left: 10px;
+}
+td{
+  text-align: right;
+}
+input{
+  padding: -3px;
+}

@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "rect",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "name": "what3chords" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -180.0, -85.051129 ], [ 179.999999, -85.051129 ], [ 179.999999, 85.051129 ], [ -180.0, 85.051129 ], [ -180.0, -85.051129 ] ] ] } }
+]
+}
