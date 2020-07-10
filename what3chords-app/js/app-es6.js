@@ -92,6 +92,7 @@ function processChordsData() {
   for (let [key, variants] of Object.entries(DATA.chords)) {
     for (let v of variants) {
       for (let i = 0; i < v.positions.length; i ++) {
+        // console.log(v.positions[i].midi);
         CHORDS.push({
           chord: `${v.key}${v.suffix} ${i}`,
           midi: v.positions[i].midi,
@@ -197,20 +198,21 @@ function arnoldsCat(xy) {
   return [(2 * xy[0] + xy[1]) % 1, (xy[0] + xy[1]) % 1];
 }
 
-function playChord(notes1, notes2, notes3){
-  notes1 = notesToFreq(notes1);
-  notes2 = notesToFreq(notes2);
-  notes3 = notesToFreq(notes3);
+function playChord(notes1, notes2, notes3) {
+  let n1 = notes1.map(x => Tone.Midi(x).toFrequency());
+  let n2 = notes2.map(x => Tone.Midi(x).toFrequency());
+  let n3 = notes3.map(x => Tone.Midi(x).toFrequency());
 
   const now = Tone.now()
-  synth.triggerAttackRelease(notes1, 1, now);
-  synth.triggerAttackRelease(notes2, 1, now + 1.05);
-  synth.triggerAttackRelease(notes3, 1, now + 2.1);
+  synth.triggerAttackRelease(n2, 0.75, now);
+  synth.triggerAttackRelease(n2, 0.75, now + 0.78);
+  synth.triggerAttackRelease(n3, 0.75, now + 1.53);
 }
 
-function notesToFreq(n){
-  for (let i = 0; i < n.length; i++){
-    n[i] = Tone.Midi(n[i]).toFrequency();
-  }
-  return n;
+function notesToFreq(n) {
+  // let note = [];
+  // for (let midi of n) {
+  //   note.push(Tone.Midi(midi).toFrequency());
+  // }
+  return n.map(x => Tone.Midi(x).toFrequency());
 }
