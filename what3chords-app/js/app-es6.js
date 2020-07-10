@@ -2,6 +2,13 @@
 
 const WEB_MERC_LIMIT = 85.051129;
 
+const synth = new Tone.PolySynth(6, Tone.Synth, {
+oscillator : {
+  type : "pulse",
+  volume : "-5"
+}
+}).toMaster();
+
 // determine if a theme 'dark' or 'light' has been
 // specified in the URL query string
 let THEME = getThemeFromURL();
@@ -114,7 +121,7 @@ function render() {
     // autoHighlight: true,
     pickable: true,
     // highlightColor: d => [0, 0, 255, 50],
-    onHover: info => setTooltip(info.object, info.x, info.y, info.coordinate),
+    onClick: info => setTooltip(info.object, info.x, info.y, info.coordinate),
     visible: LAYER_VISIBILITY.rect,
   });
 
@@ -135,10 +142,14 @@ function setTooltip(object, x, y, c) {
     el.style.top = `${y}px`;
     el.style.visibility = "visible";
     el.style.display = "block";
+
+    playChord(CHORDS[abc[0]].midi);
+
   } else {
     el.style.visibility = "hidden";
     el.style.display = "none";
   }
+
 }
 
 
@@ -181,4 +192,16 @@ function rescale(x, xmin, xmax, mn, mx) {
 
 function arnoldsCat(xy) {
   return [(2 * xy[0] + xy[1]) % 1, (xy[0] + xy[1]) % 1];
+}
+
+function playChord(notes1){
+ notes1 = notesToFreq(notes1);
+ synth.triggerAttackRelease(notes1, "2n");
+}
+
+function notesToFreq(n){
+  for (let i = 0; i < n.length; i++){
+    n[i] = Math.round(Tone.Midi(n[i]).toFrequency());
+  }
+  return n;
 }
