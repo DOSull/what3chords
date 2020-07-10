@@ -2,12 +2,13 @@
 
 const WEB_MERC_LIMIT = 85.051129;
 
+var dist = new Tone.Distortion(0.8).toMaster();
 const synth = new Tone.PolySynth(6, Tone.Synth, {
 oscillator : {
-  type : "pulse",
-  volume : "-5"
+  type : "sine",
+  volume : "0"
 }
-}).toMaster();
+}).connect(dist);
 
 // determine if a theme 'dark' or 'light' has been
 // specified in the URL query string
@@ -204,7 +205,7 @@ function playChord(notes1, notes2, notes3) {
   let n3 = notes3.map(x => Tone.Midi(x).toFrequency());
 
   const now = Tone.now()
-  synth.triggerAttackRelease(n2, 0.75, now);
+  synth.triggerAttackRelease(n1, 0.75, now);
   synth.triggerAttackRelease(n2, 0.75, now + 0.78);
   synth.triggerAttackRelease(n3, 0.75, now + 1.53);
 }
