@@ -143,7 +143,7 @@ function setTooltip(object, x, y, c) {
     el.style.visibility = "visible";
     el.style.display = "block";
 
-    playChord(CHORDS[abc[0]].midi);
+    playChord(CHORDS[abc[0]].midi,CHORDS[abc[1]].midi,CHORDS[abc[2]].midi);
 
   } else {
     el.style.visibility = "hidden";
@@ -194,14 +194,21 @@ function arnoldsCat(xy) {
   return [(2 * xy[0] + xy[1]) % 1, (xy[0] + xy[1]) % 1];
 }
 
-function playChord(notes1){
+function playChord(notes1, notes2, notes3){
  notes1 = notesToFreq(notes1);
- synth.triggerAttackRelease(notes1, "2n");
+ notes2 = notesToFreq(notes2);
+ notes3 = notesToFreq(notes3);
+
+ const now = Tone.now()
+ synth.triggerAttackRelease(notes1, 1, now);
+ synth.triggerAttackRelease(notes2, 1, now + 1.05);
+ synth.triggerAttackRelease(notes3, 1, now + 2.1);
+
 }
 
 function notesToFreq(n){
   for (let i = 0; i < n.length; i++){
-    n[i] = Math.round(Tone.Midi(n[i]).toFrequency());
+    n[i] = Tone.Midi(n[i]).toFrequency();
   }
   return n;
 }
