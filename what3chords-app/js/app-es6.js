@@ -226,9 +226,18 @@ function playChord(notes1, notes2, notes3) {
   let chord3 = notes3.map(x => Tone.Midi(x).toNote());
 
   const now = Tone.now()
-  GUITAR.triggerAttack(chord1, now).connect(dist);
-  GUITAR.triggerAttack(chord2, now + 1).connect(dist);
-  GUITAR.triggerAttack(chord3, now + 2).connect(dist);
+  GUITAR.triggerAttackRelease(chord1, 0.3, now).connect(dist);
+  GUITAR.triggerAttackRelease(chord1, 0.3, now + 0.25).connect(dist);
+  GUITAR.triggerAttackRelease(chord1, 0.3, now + 0.5).connect(dist);
+  GUITAR.triggerAttackRelease(chord1, 0.3, now + 0.75).connect(dist);
+  GUITAR.triggerAttackRelease(chord2, 0.3, now + 1.05).connect(dist);
+  GUITAR.triggerAttackRelease(chord2, 0.3, now + 1.3).connect(dist);
+  GUITAR.triggerAttackRelease(chord2, 0.3, now + 1.55).connect(dist);
+  GUITAR.triggerAttackRelease(chord2, 0.3, now + 1.8).connect(dist);
+  GUITAR.triggerAttackRelease(chord3, 0.3, now + 2.1).connect(dist);
+  GUITAR.triggerAttackRelease(chord3, 0.3, now + 2.35).connect(dist);
+  GUITAR.triggerAttackRelease(chord3, 0.3, now + 2.6).connect(dist);
+  GUITAR.triggerAttackRelease(chord3, 0.3, now + 2.85).connect(dist);
 }
 
 function notesToFreq(n) {
