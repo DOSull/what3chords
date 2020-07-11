@@ -49,13 +49,13 @@ const MY_DECKGL = new deck.DeckGL({
 });
 
 // retrieve the theme 'dark' or 'light' from the URL
-// query string - defaults to 'light'
+// query string - defaults to 'dark'
 function getThemeFromURL() {
   let thisURL = window.location.href;
   if (thisURL.includes("?")) {
     return thisURL.split("?").slice(-1)[0].split("=").slice(-1)[0];
   }
-  return "light";
+  return "dark";
 }
 
 // Not very smart... just reload the page with theme in the query string
@@ -139,7 +139,7 @@ function setTooltip(object, x, y, c) {
     let abc = getCode(c);
     // console.log(`${abc}`);
     el.innerHTML =
-      `<table><tr><td>Chord</td><td>MIDI</td></tr><tr><td>${CHORDS[abc[0]].chord}</td><td>${CHORDS[abc[0]].midi}</td></tr><tr><td>${CHORDS[abc[1]].chord}</td><td>${CHORDS[abc[1]].midi}</td></tr><tr><td>${CHORDS[abc[2]].chord}</td><td>${CHORDS[abc[2]].midi}</td</tr></table>`;
+      `<table><tr><td>Chord</td><td>MIDI</td></tr><tr><td>${CHORDS[abc[0]].chord}</td><td>${CHORDS[abc[0]].midi}</td></tr><tr><td>${CHORDS[abc[1]].chord}</td><td>${CHORDS[abc[1]].midi}</td></tr><tr><td>${CHORDS[abc[2]].chord}</td><td>${CHORDS[abc[2]].midi}</td</tr><tr><td>H3</td><td>${h3.geoToH3(c[1], c[0], 11)}</td></tr></table>`;
     el.style.left = `${x}px`;
     el.style.top = `${y}px`;
     el.style.visibility = "visible";
