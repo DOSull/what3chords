@@ -258,16 +258,16 @@ function playChord(notes1, notes2, notes3) {
   chords.push(notes3.map(x => Tone.Midi(x).toNote()));
 
   let now = Tone.now()
-  let bpm = 120;
+  let bpm = 180;
   let durn = 0.5 * 60 / bpm;
   // see https://en.wikipedia.org/wiki/Strum#Strumming_patterns
-  let pattern = "d-du-udu";
-  // let pattern = "d-dud-du";
+  // and https://rockguitaruniverse.com/guitar-strumming-patterns/#The_Ramones_Pattern
+  let pattern = "dudud-d-";
   for (let c of chords) {
     // 4:4 time strummed up and down, missing where pattern is -
     for (let p of pattern) {
       if (p != "-") {
-        strumChord(GUITAR, c, now, 0.01, 2 * durn);
+        strumChord(GUITAR, c, now, 0.01, 3 * durn);
       }
       now = now + durn;
       c.reverse(); // to get down/up strums
