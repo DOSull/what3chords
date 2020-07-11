@@ -175,7 +175,7 @@ function setTooltip(object, x, y, c) {
 
 // get a 3 digit sequence of 0..2040 indices into the Array of chords
 function getCode(c) {
-  // get x and y values that are int 0..130400, 0..65200
+  // get x and y values that are integers 0..130400, 0..65200
   let xy = [
     Math.round(rescale(c[0], -180, 180, 0, 130400)),
     Math.round(rescale(c[1], -WEB_MERC_LIMIT, WEB_MERC_LIMIT, 0, 65200))
@@ -187,31 +187,33 @@ function getCode(c) {
   ]
   // shuffle them
   xy = doTheShuffle(xy);
+  // round back to ints
   let x = Math.round(rescale(xy[0], 0, 1, 0, 130400));
   let y = Math.round(rescale(xy[1], 0, 1, 0, 65200));
+
+  // convert to an index
   let i = x + y * 130400;
+  // make pqr number 'base 2041'
   let p = Math.floor(i / 2041 / 2041);
   let q = Math.floor((i - p * 2041 * 2041) / 2041);
   let r = i % 2041;
   return [p, q, r];
 }
 
-function divide(x, y) {
-  return [Math.floor(x / y), x % y];
+// rescale x from xmin-xmax to mn-mx
+function rescale(x, xmin, xmax, mn, mx) {
+  return mn + (mx - mn) * (x - xmin) / (xmax - xmin);
 }
 
+
 // shuffle the lon lat in a unit square using Arnold's Cat, see
-// http://southosullivan.com/misc/what3chords-app/
+// https://en.wikipedia.org/wiki/Arnold's_cat_map
 function doTheShuffle(c) {
   let xy = c;
   for (let i = 0; i < 15; i ++) {
     xy = arnoldsCat(xy);
   }
   return xy;
-}
-
-function rescale(x, xmin, xmax, mn, mx) {
-  return mn + (mx - mn) * (x - xmin) / (xmax - xmin);
 }
 
 function arnoldsCat(xy) {
