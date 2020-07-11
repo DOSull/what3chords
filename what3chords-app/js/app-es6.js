@@ -69,23 +69,35 @@ document.getElementById("loaderDiv").style.display = "block";
 
 // get the data
 const DATA = {};
-
-
+let GUITAR;
 
 $.when(
   $.getJSON("./data/guitar-chords.json", function(data) {
     DATA.chords = data.chords;
     console.log(DATA.chords);
   }),
+  getSamples(),
   $.getJSON("./data/rect.geojson", function(data) {
     DATA.rect = data.features;
     console.log(DATA.rect);
   })
 ).done( function() {
   clearLoader(); // clear the spinner
+  GUITAR.toMaster(); // ??
   processChordsData();
   render();
 });
+
+function getSamples() {
+  // passing a single instrument name loads one instrument and returns the tone.js object
+  GUITAR = SampleLibrary.load({
+    baseUrl: "./data/",
+    instruments: "guitar-electric",
+  });
+  GUITAR.toMaster();
+  console.log(GUITAR);
+}
+
 
 let ALL_THE_NOTES = {};
 let CHORDS = [];
@@ -215,15 +227,18 @@ function playChord(notes1, notes2, notes3) {
   synth.triggerAttackRelease(n1, 0.75, now);
   synth.triggerAttackRelease(n2, 0.75, now + 0.78);
   synth.triggerAttackRelease(n3, 0.75, now + 1.53);*/
-  var player = new Tone.Player("./data/sounds/A3.mp3").toMaster().connect(dist);
-  player.autostart = true;
+  // var player = new Tone.Player("./data/sounds/A3.mp3").toMaster().connect(dist);
+  // player.autostart = true;
+  //
+  // var player2 = new Tone.Player("./data/sounds/C3.mp3").toMaster().connect(dist);
+  // player2.autostart = true;
+  //
+  // var player3 = new Tone.Player("./data/sounds/E2.mp3").toMaster().connect(dist);
+  // player3.autostart = true;
 
-  var player2 = new Tone.Player("./data/sounds/C3.mp3").toMaster().connect(dist);
-  player2.autostart = true;
-
-  var player3 = new Tone.Player("./data/sounds/E2.mp3").toMaster().connect(dist);
-  player3.autostart = true;
-
+  GUITAR.triggerAttack("A3").connect(dist);
+  GUITAR.triggerAttack("C3").connect(dist);
+  GUITAR.triggerAttack("E2").connect(dist);
 }
 
 function notesToFreq(n) {
