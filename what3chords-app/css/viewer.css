@@ -6,7 +6,7 @@ body {
   font-weight: 400;
   font-size: 15px;
   color: white;
-  background-color: rgba(0, 0, 0, 0);
+  background-color: rgba(0, 0, 0, 0.5);
   overflow-x: hidden;
   overflow-y: auto;
 }
@@ -114,10 +114,10 @@ margin: 2px 0px;
   margin: -150px 0 0 -150px;
   border: 75px solid rgba(0, 0, 0, 0);
   border-radius: 50%;
-  border-top: 75px solid rgba(0 ,0, 0, 1);
-  border-right: 75px solid rgba(0, 153, 0, 1);
-  border-bottom: 75px solid rgba(255, 255, 0, 1);
-  border-left: 75px solid rgba(255 ,0, 0, 1);
+  border-top: 75px solid rgba(0 ,0, 0, 0.5);
+  border-right: 75px solid rgba(0, 153, 0, 0.5);
+  border-bottom: 75px solid rgba(255, 255, 0, 0.5);
+  border-left: 75px solid rgba(255 ,0, 0, 0.5);
   -webkit-animation: spin 2s linear infinite;
   animation: spin 2s linear infinite;
   background-color: rgba(0,0,0,0);

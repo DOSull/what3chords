@@ -49,13 +49,13 @@ const MY_DECKGL = new deck.DeckGL({
 });
 
 // retrieve the theme 'dark' or 'light' from the URL
-// query string - defaults to 'light'
+// query string - defaults to 'dark'
 function getThemeFromURL() {
   let thisURL = window.location.href;
   if (thisURL.includes("?")) {
     return thisURL.split("?").slice(-1)[0].split("=").slice(-1)[0];
   }
-  return "light";
+  return "dark";
 }
 
 // Not very smart... just reload the page with theme in the query string
