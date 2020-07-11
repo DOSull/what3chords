@@ -2,7 +2,7 @@
 
 const WEB_MERC_LIMIT = 85.051129;
 
-var dist = new Tone.Distortion(1).toMaster();
+var dist = new Tone.Distortion(2).toMaster();
 const synth = new Tone.PolySynth(6, Tone.Synth, {
 oscillator : {
   type : "sawtooth6",
@@ -200,14 +200,23 @@ function arnoldsCat(xy) {
 }
 
 function playChord(notes1, notes2, notes3) {
-  let n1 = notes1.map(x => Tone.Midi(x).toFrequency());
+  /*let n1 = notes1.map(x => Tone.Midi(x).toFrequency());
   let n2 = notes2.map(x => Tone.Midi(x).toFrequency());
   let n3 = notes3.map(x => Tone.Midi(x).toFrequency());
 
   const now = Tone.now()
   synth.triggerAttackRelease(n1, 0.75, now);
   synth.triggerAttackRelease(n2, 0.75, now + 0.78);
-  synth.triggerAttackRelease(n3, 0.75, now + 1.53);
+  synth.triggerAttackRelease(n3, 0.75, now + 1.53);*/
+  var player = new Tone.Player("./data/sounds/A3.mp3").toMaster().connect(dist);
+  player.autostart = true;
+
+  var player2 = new Tone.Player("./data/sounds/C3.mp3").toMaster().connect(dist);
+  player2.autostart = true;
+
+  var player3 = new Tone.Player("./data/sounds/E2.mp3").toMaster().connect(dist);
+  player3.autostart = true;
+
 }
 
 function notesToFreq(n) {
