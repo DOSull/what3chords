@@ -87,6 +87,7 @@ $.when(
   render();
 });
 
+let ALL_THE_NOTES = {};
 let CHORDS = [];
 function processChordsData() {
   let chordsFlattened = {};
@@ -98,11 +99,17 @@ function processChordsData() {
           chord: `${v.key}${v.suffix} ${i}`,
           midi: v.positions[i].midi,
         });
+        for (let n of v.positions[i].midi) {
+          if (ALL_THE_NOTES[n]) {
+            ALL_THE_NOTES[n] = ALL_THE_NOTES[n] + 1;
+          } else {
+            ALL_THE_NOTES[n] = 1;
+          }
+        }
       }
     }
   }
 }
-
 
 // shut down the loading spinner
 function clearLoader() {
