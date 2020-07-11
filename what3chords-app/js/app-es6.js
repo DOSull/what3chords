@@ -99,11 +99,15 @@ function processChordsData() {
   let chordsFlattened = {};
   for (let [key, variants] of Object.entries(DATA.chords)) {
     for (let v of variants) {
-      for (let i = 0; i < v.positions.length; i ++) {
+      for (let i = 0; i < v.positions.length; i++) {
         // console.log(v.positions[i].midi);
+        let position = v.positions[i];
         CHORDS.push({
-          chord: `${v.key}${v.suffix} ${i}`,
-          midi: v.positions[i].midi,
+          chord: `${v.key}${v.suffix} v${(i + 1)}`,
+          midi: position.midi,
+          frets: processFrets(position.frets),
+          capo: processCapo(position),
+          fingers: position.fingers.join(""),
         });
         // for (let n of v.positions[i].midi) {
         //   if (ALL_THE_NOTES[n]) {
@@ -114,6 +118,22 @@ function processChordsData() {
         // }
       }
     }
+  }
+}
+
+function processFrets(fretPositions) {
+  let symbols = [];
+  for (let fret of fretPositions) {
+    symbols.push(fret < 0 ? "X" : fret);
+  }
+  return symbols.join("");
+}
+
+function processCapo(posn) {
+  if (posn.capo) {
+    return posn.baseFret;
+  } else {
+    return 0;
   }
 }
 
@@ -152,7 +172,13 @@ function setTooltip(object, x, y, c) {
     let abc = getCode(c);
     // console.log(`${abc}`);
     el.innerHTML =
-      `<table><tr><td>Chord</td><td>MIDI</td></tr><tr><td>${CHORDS[abc[0]].chord}</td><td>${CHORDS[abc[0]].midi}</td></tr><tr><td>${CHORDS[abc[1]].chord}</td><td>${CHORDS[abc[1]].midi}</td></tr><tr><td>${CHORDS[abc[2]].chord}</td><td>${CHORDS[abc[2]].midi}</td</tr><tr><td>H3</td><td>${h3.geoToH3(c[1], c[0], 11)}</td></tr></table>`;
+      `<table>
+      <tr><td>Chord</td><td>Frets</td><td>Capo</td><td>Fingers</td></tr>
+      ${getChordTableRow(CHORDS[abc[0]])}
+      ${getChordTableRow(CHORDS[abc[1]])}
+      ${getChordTableRow(CHORDS[abc[2]])}
+      <tr><td>H3</td><td colspan="3">${h3.geoToH3(c[1],c[0],11)}</td></tr>
+      </table>`;
     el.style.left = `${x}px`;
     el.style.top = `${y}px`;
     el.style.visibility = "visible";
@@ -164,7 +190,15 @@ function setTooltip(object, x, y, c) {
     el.style.visibility = "hidden";
     el.style.display = "none";
   }
+}
 
+function getChordTableRow(c) {
+  return `<tr>
+  <td>${c.chord}</td>
+  <td>${c.frets}</td>
+  <td>${c.capo}</td>
+  <td>${c.fingers}</td>
+  </tr>`;
 }
 
 // get a 3 digit sequence of 0..2040 indices into the Array of chords
@@ -215,7 +249,7 @@ function arnoldsCat(xy) {
 }
 
 
-const dist = new Tone.Distortion(0.8).toMaster();
+const dist = new Tone.Distortion(1).toMaster();
 
 function playChord(notes1, notes2, notes3) {
   let chords = [];
@@ -224,33 +258,30 @@ function playChord(notes1, notes2, notes3) {
   chords.push(notes3.map(x => Tone.Midi(x).toNote()));
 
   let now = Tone.now()
+  let bpm = 120;
+  let durn = 0.5 * 60 / bpm;
+  // see https://en.wikipedia.org/wiki/Strum#Strumming_patterns
+  let pattern = "d-du-udu";
+  // let pattern = "d-dud-du";
   for (let c of chords) {
-    for (let i = 0; i < 4; i++) {
-      GUITAR.triggerAttack(c, now).connect(dist);
-      now = now + 0.25
+    // 4:4 time strummed up and down, missing where pattern is -
+    for (let p of pattern) {
+      if (p != "-") {
+        strumChord(GUITAR, c, now, 0.01, 2 * durn);
+      }
+      now = now + durn;
+      c.reverse(); // to get down/up strums
     }
-    now = now + 0.02;
+    now = now + 0.0;
   }
-
-  // let strumDuration = 0.5;
-  // let returnTime = 0.2;
-  // for (let c of chords) {
-  //   // play each chord 4 times down and up
-  //   for (let i = 0; i < 4; i ++) {
-  //     strumChord(GUITAR, c, now, (strumDuration - returnTime) / (c.length - 1));
-  //     c.reverse();
-  //     now = now + returnTime; // gap between strums
-  //   }
-  //   now = now + 0.05; // additional gap between bars
-  // }
 }
 
 
 // crude attempt to strum chord, not just play all strings at once
-function strumChord (instrument, notes, now, gap) {
+function strumChord (instrument, notes, now, gap, duration) {
   let t = now;
   for (let n of notes) {
-    instrument.triggerAttack(n, t).connect(dist);
+    instrument.triggerAttackRelease(n, duration, t).connect(dist);
     t = t + gap;
   }
 }
