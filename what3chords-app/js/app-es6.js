@@ -236,9 +236,12 @@ function playChord(notes1, notes2, notes3) {
   // var player3 = new Tone.Player("./data/sounds/E2.mp3").toMaster().connect(dist);
   // player3.autostart = true;
 
-  GUITAR.triggerAttack("A3").connect(dist);
-  GUITAR.triggerAttack("C3").connect(dist);
-  GUITAR.triggerAttack("E2").connect(dist);
+  // GUITAR.triggerAttack("A3").connect(dist);
+  // GUITAR.triggerAttack("C3").connect(dist);
+  // GUITAR.triggerAttack("E2").connect(dist);
+  let chord1 = notes1.map(x => Tone.Midi(x).toNote());
+  GUITAR.triggerAttack(chord1).connect(dist);
+  // GUITAR.triggerAttack(["A3", "C3", "E2"]).connect(dist);
 }
 
 function notesToFreq(n) {
