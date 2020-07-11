@@ -2,14 +2,6 @@
 
 const WEB_MERC_LIMIT = 85.051129;
 
-var dist = new Tone.Distortion(2).toMaster();
-const synth = new Tone.PolySynth(6, Tone.Synth, {
-oscillator : {
-  type : "sawtooth6",
-  volume : "2"
-}
-}).connect(dist);
-
 // determine if a theme 'dark' or 'light' has been
 // specified in the URL query string
 let THEME = getThemeFromURL();
@@ -93,6 +85,7 @@ function getSamples() {
   GUITAR = SampleLibrary.load({
     baseUrl: "./data/",
     instruments: "guitar-electric",
+    curve: "linear",
   });
   GUITAR.toMaster();
   console.log(GUITAR);
@@ -221,30 +214,48 @@ function arnoldsCat(xy) {
   return [(2 * xy[0] + xy[1]) % 1, (xy[0] + xy[1]) % 1];
 }
 
-function playChord(notes1, notes2, notes3) {
-  let chord1 = notes1.map(x => Tone.Midi(x).toNote());
-  let chord2 = notes2.map(x => Tone.Midi(x).toNote());
-  let chord3 = notes3.map(x => Tone.Midi(x).toNote());
 
-  const now = Tone.now()
-  GUITAR.triggerAttackRelease(chord1, 0.3, now).connect(dist);
-  GUITAR.triggerAttackRelease(chord1, 0.3, now + 0.25).connect(dist);
-  GUITAR.triggerAttackRelease(chord1, 0.3, now + 0.5).connect(dist);
-  GUITAR.triggerAttackRelease(chord1, 0.3, now + 0.75).connect(dist);
-  GUITAR.triggerAttackRelease(chord2, 0.3, now + 1.05).connect(dist);
-  GUITAR.triggerAttackRelease(chord2, 0.3, now + 1.3).connect(dist);
-  GUITAR.triggerAttackRelease(chord2, 0.3, now + 1.55).connect(dist);
-  GUITAR.triggerAttackRelease(chord2, 0.3, now + 1.8).connect(dist);
-  GUITAR.triggerAttackRelease(chord3, 0.3, now + 2.1).connect(dist);
-  GUITAR.triggerAttackRelease(chord3, 0.3, now + 2.35).connect(dist);
-  GUITAR.triggerAttackRelease(chord3, 0.3, now + 2.6).connect(dist);
-  GUITAR.triggerAttackRelease(chord3, 0.3, now + 2.85).connect(dist);
+const dist = new Tone.Distortion(0.8).toMaster();
+
+function playChord(notes1, notes2, notes3) {
+  let chords = [];
+  chords.push(notes1.map(x => Tone.Midi(x).toNote()));
+  chords.push(notes2.map(x => Tone.Midi(x).toNote()));
+  chords.push(notes3.map(x => Tone.Midi(x).toNote()));
+
+  let now = Tone.now()
+  for (let c of chords) {
+    for (let i = 0; i < 4; i++) {
+      GUITAR.triggerAttack(c, now).connect(dist);
+      now = now + 0.25
+    }
+    now = now + 0.02;
+  }
+
+  // let strumDuration = 0.5;
+  // let returnTime = 0.2;
+  // for (let c of chords) {
+  //   // play each chord 4 times down and up
+  //   for (let i = 0; i < 4; i ++) {
+  //     strumChord(GUITAR, c, now, (strumDuration - returnTime) / (c.length - 1));
+  //     c.reverse();
+  //     now = now + returnTime; // gap between strums
+  //   }
+  //   now = now + 0.05; // additional gap between bars
+  // }
 }
 
+
+// crude attempt to strum chord, not just play all strings at once
+function strumChord (instrument, notes, now, gap) {
+  let t = now;
+  for (let n of notes) {
+    instrument.triggerAttack(n, t).connect(dist);
+    t = t + gap;
+  }
+}
+
+
 function notesToFreq(n) {
-  // let note = [];
-  // for (let midi of n) {
-  //   note.push(Tone.Midi(midi).toFrequency());
-  // }
   return n.map(x => Tone.Midi(x).toFrequency());
 }
