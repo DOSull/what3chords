@@ -256,6 +256,7 @@ function playChord(notes1, notes2, notes3) {
   chords.push(notes1.map(x => Tone.Midi(x).toNote()));
   chords.push(notes2.map(x => Tone.Midi(x).toNote()));
   chords.push(notes3.map(x => Tone.Midi(x).toNote()));
+  chords.push(notes1.map(x => Tone.Midi(x).toNote()));
 
   let now = Tone.now()
   let bpm = 180;
