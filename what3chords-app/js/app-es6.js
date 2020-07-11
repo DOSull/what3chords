@@ -219,29 +219,14 @@ function arnoldsCat(xy) {
 }
 
 function playChord(notes1, notes2, notes3) {
-  /*let n1 = notes1.map(x => Tone.Midi(x).toFrequency());
-  let n2 = notes2.map(x => Tone.Midi(x).toFrequency());
-  let n3 = notes3.map(x => Tone.Midi(x).toFrequency());
+  let chord1 = notes1.map(x => Tone.Midi(x).toNote());
+  let chord2 = notes2.map(x => Tone.Midi(x).toNote());
+  let chord3 = notes3.map(x => Tone.Midi(x).toNote());
 
   const now = Tone.now()
-  synth.triggerAttackRelease(n1, 0.75, now);
-  synth.triggerAttackRelease(n2, 0.75, now + 0.78);
-  synth.triggerAttackRelease(n3, 0.75, now + 1.53);*/
-  // var player = new Tone.Player("./data/sounds/A3.mp3").toMaster().connect(dist);
-  // player.autostart = true;
-  //
-  // var player2 = new Tone.Player("./data/sounds/C3.mp3").toMaster().connect(dist);
-  // player2.autostart = true;
-  //
-  // var player3 = new Tone.Player("./data/sounds/E2.mp3").toMaster().connect(dist);
-  // player3.autostart = true;
-
-  // GUITAR.triggerAttack("A3").connect(dist);
-  // GUITAR.triggerAttack("C3").connect(dist);
-  // GUITAR.triggerAttack("E2").connect(dist);
-  let chord1 = notes1.map(x => Tone.Midi(x).toNote());
-  GUITAR.triggerAttack(chord1).connect(dist);
-  // GUITAR.triggerAttack(["A3", "C3", "E2"]).connect(dist);
+  GUITAR.triggerAttack(chord1, now).connect(dist);
+  GUITAR.triggerAttack(chord2, now + 1).connect(dist);
+  GUITAR.triggerAttack(chord3, now + 2).connect(dist);
 }
 
 function notesToFreq(n) {
