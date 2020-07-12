@@ -5,6 +5,8 @@ const LON_RES = 130400;
 const LAT_RES = 65200;
 const CAT_SHUFFLES = 15;
 const N_CHORDS_LL = 2141;
+
+const USE_H3 = true;
 const N_CHORDS_H3 = 1692;
 const H3_RES = 9;
 let H3_CODE = {
@@ -58,7 +60,7 @@ function getThemeFromURL() {
   if (thisURL.includes("?")) {
     return thisURL.split("?").slice(-1)[0].split("=").slice(-1)[0];
   }
-  return "dark";
+  return "light;
 }
 
 // Not very smart... just reload the page with theme in the query string
@@ -222,13 +224,14 @@ function setTooltip(object, x, y, c) {
     let hex = h3.h3ToGeoBoundary(h3.geoToH3(c[1], c[0], H3_RES));
     let h3c = getH3Code(c);
     let abc = getCode(c);
+    let codeToUse =  USE_H3 ? h3c : abc;
     console.log(`LatLon code: ${abc} H3 code: ${h3c}`);
     el.innerHTML =
       `<table>
       <tr><td>Chord</td><td>Frets</td><td>Capo</td><td>Fingers</td></tr>
-      ${getChordTableRow(CHORDS[abc[0]])}
-      ${getChordTableRow(CHORDS[abc[1]])}
-      ${getChordTableRow(CHORDS[abc[2]])}
+      ${getChordTableRow(CHORDS[codeToUse[0]])}
+      ${getChordTableRow(CHORDS[codeToUse[1]])}
+      ${getChordTableRow(CHORDS[codeToUse[2]])}
       <tr><td>H3</td><td colspan="3">${h3.geoToH3(c[1], c[0], H3_RES)}</td></tr>
       </table>`;
     el.style.left = `${x}px`;
@@ -236,7 +239,9 @@ function setTooltip(object, x, y, c) {
     el.style.visibility = "visible";
     el.style.display = "block";
 
-    playChord(CHORDS[abc[0]].midi, CHORDS[abc[1]].midi, CHORDS[abc[2]].midi);
+    playChord(CHORDS[codeToUse[0]].midi,
+              CHORDS[codeToUse[1]].midi,
+              CHORDS[codeToUse[2]].midi);
     // el.style.display = "none";
   } else {
     el.style.visibility = "hidden";
