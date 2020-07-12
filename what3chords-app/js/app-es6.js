@@ -78,8 +78,8 @@ function GeolocationError(err){
 function ClickGeolocator() {
   console.log("Attempting to get geolocation.")
   var options = {
-    enableHighAccuracy: false,
-    timeout: 20000,
+    enableHighAccuracy: true,
+    timeout: 1000,
     maximumAge: 1000
   };
   navigator.geolocation.getCurrentPosition(GetMyLocationSong,GeolocationError, options);
