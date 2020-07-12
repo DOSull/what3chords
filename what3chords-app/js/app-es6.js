@@ -209,10 +209,9 @@ function setTooltip(object, x, y, c) {
   let el = document.getElementById("tooltip");
   if (object) {
     // testing getting the H3 index for possible later extension
-    let h3Index = h3.geoToH3(c[1], c[0], 9);
-    console.log(nBaseX(parseInt(h3Index, 16), 2, "01").slice(12, 46));
+    let h3c = getH3Code(c);
     let abc = getCode(c);
-    // console.log(`${abc}`);
+    console.log(`LatLon code: ${abc} H3 code: ${h3c}`);
     el.innerHTML =
       `<table>
       <tr><td>Chord</td><td>Frets</td><td>Capo</td><td>Fingers</td></tr>
@@ -242,6 +241,25 @@ function getChordTableRow(c) {
   <td>${c.fingers}</td>
   </tr>`;
 }
+
+function getH3Code(c) {
+  return nBaseX(h3ToDecimal(h3.geoToH3(c[1], c[0], 9)), 1692);
+}
+
+
+function h3ToDecimal(idx) {
+  let bin = nBaseX(parseInt(idx, 16), 2, "01").slice(12, 46)
+  let pos = 9;
+  let result = parseInt(bin.slice(0, 7), 2) * (7 ** pos);
+  let heptDigits = bin.slice(7);
+  while (pos > 0) {
+    pos--;
+    result = result + parseInt(heptDigits.slice(0, 3), 2) * (7 ** pos);
+    heptDigits = heptDigits.slice(3);
+  }
+  return result;
+}
+
 
 // get a 3 digit sequence of 0..2040 indices into the Array of chords
 function getCode(c) {
