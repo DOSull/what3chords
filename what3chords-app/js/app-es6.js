@@ -258,8 +258,12 @@ function getH3Code(c) {
 // first 7 bits are high level 'region'
 // the remaining 27 bits are 9 sets of base 7 hierarchical indexing
 function h3ToDecimal(idx) {
+  let bin = parseInt(idx.slice(0, 4), 16).toString(2) +
+            parseInt(idx.slice(4, 8), 16).toString(2) +
+            parseInt(idx.slice(8, 12), 16).toString(2) +
+            parseInt(idx.slice(12), 16).toString(2);
   // extract the bits we need
-  let bin = parseInt(idx, 16).toString(2).slice(12, 46)
+  bin = bin.slice(12, 46);
   // the power of 7 we are currently working on
   let pow = 9;
   // first 7 bits are region
