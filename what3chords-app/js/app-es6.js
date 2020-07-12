@@ -56,6 +56,37 @@ function switchTheme() {
   window.location = window.location.href.split("?")[0] + `?theme=${THEME}`;
 }
 
+
+function GetMyLocationSong(pos) {
+    var crd = pos.coords;
+    console.log("Found geolocation. ",crd.longitude," ",crd.latitude);
+    MY_DECKGL.viewState = {
+      longitude: crd.longitude,
+      latitude: crd.latitude,
+      zoom: 12,
+      pitch: 0,
+      bearing: 315,
+      transitionDuration: 3000
+    };
+};
+
+function GeolocationError(err){
+  console.log("Attempted geolocation but failed.");
+  console.warn(`ERROR(${err.code}): ${err.message}`);
+};
+
+function ClickGeolocator() {
+  console.log("Attempting to get geolocation.")
+  var options = {
+    enableHighAccuracy: false,
+    timeout: 20000,
+    maximumAge: 1000
+  };
+  navigator.geolocation.getCurrentPosition(GetMyLocationSong,GeolocationError, options);
+}
+
+document.getElementById("geolocate").addEventListener("click", ClickGeolocator);
+
 // fire up the loading spinner
 document.getElementById("loaderDiv").style.display = "block";
 
@@ -79,6 +110,14 @@ $.when(
   processChordsData();
   render();
 });
+
+
+
+
+
+
+
+
 
 function getSamples() {
   // passing a single instrument name loads one instrument and returns the tone.js object
