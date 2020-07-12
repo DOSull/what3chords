@@ -208,6 +208,8 @@ function render() {
 function setTooltip(object, x, y, c) {
   let el = document.getElementById("tooltip");
   if (object) {
+    let h3Index = h3.geoToH3(c[1], c[0], 9);
+    console.log(nBaseX(parseInt(h3Index, 16), 2, "01").slice(19, 46));
     let abc = getCode(c);
     // console.log(`${abc}`);
     el.innerHTML =
@@ -216,7 +218,7 @@ function setTooltip(object, x, y, c) {
       ${getChordTableRow(CHORDS[abc[0]])}
       ${getChordTableRow(CHORDS[abc[1]])}
       ${getChordTableRow(CHORDS[abc[2]])}
-      <tr><td>H3</td><td colspan="3">${h3.geoToH3(c[1],c[0],11)}</td></tr>
+      <tr><td>H3</td><td colspan="3">${h3.geoToH3(c[1], c[0], 9)}</td></tr>
       </table>`;
     el.style.left = `${x}px`;
     el.style.top = `${y}px`;
@@ -260,11 +262,23 @@ function getCode(c) {
 
   // convert to an index
   let i = x + y * 130400;
-  // make pqr number 'base 2041'
-  let p = Math.floor(i / 2041 / 2041);
-  let q = Math.floor((i - p * 2041 * 2041) / 2041);
-  let r = i % 2041;
-  return [p, q, r];
+  return nBaseX(i, 2041);
+}
+
+function nBaseX(n, x, alphabet) {
+  let result = [];
+  let digitsRequired = Math.floor(Math.log(n) / Math.log(x)) + 1;
+  let q = n;
+  for (let i = 0; i < digitsRequired; i++) {
+    result.unshift(q % x);
+    q = Math.floor(q / x);
+  }
+  // console.log(result);
+  if (alphabet) {
+    return result.map(i => alphabet[i]).join("");
+  } else {
+    return result;
+  }
 }
 
 // rescale x from xmin-xmax to mn-mx
@@ -303,16 +317,22 @@ function playChord(notes1, notes2, notes3) {
   // see https://en.wikipedia.org/wiki/Strum#Strumming_patterns
   // and https://rockguitaruniverse.com/guitar-strumming-patterns/#The_Ramones_Pattern
   let pattern = "dudud-d-";
-  for (let c of chords) {
-    // 4:4 time strummed up and down, missing where pattern is -
-    for (let p of pattern) {
-      if (p != "-") {
-        strumChord(GUITAR, c, now, 0.01, 3 * durn);
+  for (let i = 1; i <= chords.length; i++) {
+    let c = chords[i - 1];
+    // 4:4 time strummed up and down, missing the strum where pattern is -
+    if (i < chords.length) {
+      for (let p of pattern) {
+        if (p != "-") {
+          strumChord(GUITAR, c, now, 0.01, 3 * durn);
+        }
+        now = now + durn;
+        c.reverse(); // to get down/up strums
       }
-      now = now + durn;
-      c.reverse(); // to get down/up strums
+      now = now + 0.0;
+    } else {
+      // last time, just play it once
+      strumChord(GUITAR, c, now, 0.01, 4 * durn);
     }
-    now = now + 0.0;
   }
 }
 
