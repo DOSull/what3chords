@@ -258,10 +258,93 @@ function getChordTableRow(c) {
   </tr>`;
 }
 
+
+
+// functions bitswap and bitswapInverse exist to bridge between
+// the relative spatial monotony (autocorrelation in chords)
+// of just using h3 indices and the total chord randomness
+// that would characterize other indices.
+//
+// the number and location of bits swapped determine the nature
+// of the randomness added.
+//
+// Consider: Swapping one of the most variable (rightmost) bits
+// with one of the least variable (leftmost). this increases (in most places,
+// doubles) the number of first chords available locally (from 1 to 2).
+// It also (in most places) halves the number of third chords that would be used
+// in that locality (from ~1700 to ~850.)
+//
+// There is some net change in worldwide chord diversity--
+// There is a reshuffling of chords with other places,
+// with many localities gaining diversity (in chord 1)
+// and gaining character that differentiates them from elsewhere (in chord 3.)
+// However, because of the way that h3 is encoded in binary, attempting
+// some bitswaps on some bitstrings would create invalid h3 strings.
+// We trap those out below, disallowing those swaps, while allowing the
+// rest of the swaps in the bitswap.
+//
+// Swapping accomplished by the array of arrays BITSWAP.
+// Each array in BITSWAP contains two bit positions that should be swapped.
+// This is done left-to-right for the direct transformation bitswap () and
+// done right-to-left for the inverse.
+//
+// note tha
+
+var BITSWAP = [
+  [6, 3 * H3_RES - 1],
+  [12, 3 * H3_RES - 2]
+];
+
+function swapbits(twoPosArray,bits) {
+  var newbits = bits;
+  newbits = newbits.substr(0, twoPosArray[0]) + bits.substr(twoPosArray[1],1) + newbits.substr(twoPosArray[0]+1);
+  newbits = newbits.substr(0, twoPosArray[1]) + bits.substr(twoPosArray[0],1) + newbits.substr(twoPosArray[1]+1);
+  return newbits;
+}
+
+function bitswap(bits,BITSWAPlist) {
+  var swappedbits = bits;
+  for(var currSwapPos = 0; currSwapPos < BITSWAPlist.length; currSwapPos++) {
+    var candidatebits = swapbits(BITSWAPlist[currSwapPos],swappedbits);
+    if (checkH3Validity(candidatebits)) {
+      swappedbits = candidatebits;
+    }
+  }
+  return swappedbits;
+}
+
+function bitswapInverse(bits,BITSWAPlist) {
+  return bitswap(bits,BITSWAPlist.reverse());
+}
+
+function checkH3Validity(bits) {
+  // returns false if a bitswap has resulted in an invalid h3 code, true otherwise.
+
+  // check first seven bits are valid h3 region codes between 0-121
+  var regionCode = parseInt(bits.slice(0,8),2);
+  if ((regionCode) < 0 || (regionCode) > 121) {
+    return false
+  };
+  for(var res = 1; res <= H3_RES; res++) {
+    if (parseInt(bits.slice((res-1)*3+8,(res)*3+8),2) == 7) {
+      return false
+    }
+  }
+  return true;
+}
+
+
+
+
+
 function getH3Code(c) {
   // use the homebrew base X function to convert the decimal
   // H3 index into base 1692 to index into the chord array
-  let h3Code = nBaseX(h3ToDecimal(h3.geoToH3(c[1], c[0], H3_RES)), N_CHORDS_H3);
+  let h3Code = nBaseX(
+    h3ToDecimal(
+      h3.geoToH3(c[1], c[0], H3_RES)
+    ),
+    N_CHORDS_H3);
   // console.log(inverseH3Code(h3Code));
   return h3Code;
 }
@@ -278,9 +361,11 @@ function inverseH3Code(c3) {
     index = Math.floor(index / 7);
   }
   // leftmost 7 digits are those remaining
-  return index.toString(2).padStart(7, "0") + bits;
-}
+  bits = index.toString(2).padStart(7, "0") + bits;
 
+  // inverse any bitswapping
+  return bitswapInverse(bits,BITSWAP);
+}
 
 // idx is the raw 64 bit H3 level H3_RES index
 // we need bits 12 to 46
@@ -298,6 +383,8 @@ function h3ToDecimal(idx) {
   H3_CODE.suffix = bin.slice(H3_CODE.lastSigBit);
   // extract the bits we need
   bin = bin.slice(12, H3_CODE.lastSigBit);
+  // do any bitswapping
+  bin = bitswap(bin,BITSWAP);
   // console.log(bin);
   // the power of 7 we are currently working on
   let pow = H3_RES;
