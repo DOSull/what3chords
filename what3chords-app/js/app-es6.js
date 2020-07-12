@@ -77,7 +77,7 @@ function GetMyLocationSong(pos) {
             longitude:  crd.longitude,
             latitude: crd.latitude,
             zoom: 12,
-            transitionInterpolator: new FlyToInterpolator({speed: 1.5}),
+            transitionInterpolator: new deck.FlyToInterpolator({speed: 1.5}),
             transitionDuration: 'auto'
           }
         }
