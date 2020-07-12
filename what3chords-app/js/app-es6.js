@@ -1,6 +1,17 @@
 "use strict";
 
 const WEB_MERC_LIMIT = 85.051129;
+const LON_RES = 130400;
+const LAT_RES = 65200;
+const CAT_SHUFFLES = 15;
+const N_CHORDS_LL = 2142;
+const N_CHORDS_H3 = 1692;
+const H3_RES = 9;
+let H3_CODE = {
+  prefix: null,
+  suffix: null,
+  lastSigBit: 19 + 3 * H3_RES,
+}
 
 // determine if a theme 'dark' or 'light' has been
 // specified in the URL query string
@@ -155,13 +166,6 @@ function processChordsData() {
           capo: processCapo(position),
           fingers: position.fingers.join(""),
         });
-        // for (let n of v.positions[i].midi) {
-        //   if (ALL_THE_NOTES[n]) {
-        //     ALL_THE_NOTES[n] = ALL_THE_NOTES[n] + 1;
-        //   } else {
-        //     ALL_THE_NOTES[n] = 1;
-        //   }
-        // }
       }
     }
   }
@@ -199,9 +203,7 @@ function render() {
     getLineWidth: 1,
     lineWidthUnits: "pixels",
     getFillColor: [0, 0, 0, 0],
-    // autoHighlight: true,
     pickable: true,
-    // highlightColor: d => [0, 0, 255, 50],
     onClick: info => setTooltip(info.object, info.x, info.y, info.coordinate),
     visible: LAYER_VISIBILITY.rect,
   });
@@ -215,7 +217,9 @@ function render() {
 function setTooltip(object, x, y, c) {
   let el = document.getElementById("tooltip");
   if (object) {
-    // testing getting the H3 index for possible later extension
+    // This makes a H3 hex and puts it in the console but
+    // no idea how to inject it into a layer
+    let hex = h3.h3ToGeoBoundary(h3.geoToH3(c[1], c[0], H3_RES));
     let h3c = getH3Code(c);
     let abc = getCode(c);
     console.log(`LatLon code: ${abc} H3 code: ${h3c}`);
@@ -225,14 +229,14 @@ function setTooltip(object, x, y, c) {
       ${getChordTableRow(CHORDS[abc[0]])}
       ${getChordTableRow(CHORDS[abc[1]])}
       ${getChordTableRow(CHORDS[abc[2]])}
-      <tr><td>H3</td><td colspan="3">${h3.geoToH3(c[1], c[0], 15)}</td></tr>
+      <tr><td>H3</td><td colspan="3">${h3.geoToH3(c[1], c[0], H3_RES)}</td></tr>
       </table>`;
     el.style.left = `${x}px`;
     el.style.top = `${y}px`;
     el.style.visibility = "visible";
     el.style.display = "block";
 
-    playChord(CHORDS[abc[0]].midi,CHORDS[abc[1]].midi,CHORDS[abc[2]].midi);
+    playChord(CHORDS[abc[0]].midi, CHORDS[abc[1]].midi, CHORDS[abc[2]].midi);
     // el.style.display = "none";
   } else {
     el.style.visibility = "hidden";
@@ -252,24 +256,46 @@ function getChordTableRow(c) {
 function getH3Code(c) {
   // use the homebrew base X function to convert the decimal
   // H3 index into base 1692 to index into the chord array
-  return nBaseX(h3ToDecimal(h3.geoToH3(c[1], c[0], 15)), 1692);
+  let h3Code = nBaseX(h3ToDecimal(h3.geoToH3(c[1], c[0], H3_RES)), N_CHORDS_H3);
+  // console.log(inverseH3Code(h3Code));
+  return h3Code;
+}
+
+// recover the 34 bits of the H3 code that index level H3_RES
+// starting from the 3 chord array indices
+function inverseH3Code(c3) {
+  // retrieve the decimal index
+  let index = c3[0] * N_CHORDS_H3 * N_CHORDS_H3 + c3[1] * N_CHORDS_H3 + c3[2];
+  let bits = "";
+  // the rightmost H3_RES digits are 7-ary digits encode as 3 bits
+  for (let i = 0; i < H3_RES; i++) {
+    bits = ((index % 7).toString(2).padStart(3, "0")) + bits;
+    index = Math.floor(index / 7);
+  }
+  // leftmost 7 digits are those remaining
+  return index.toString(2).padStart(7, "0") + bits;
 }
 
 
-// idx is the raw 64 bit H3 level 9 index
+// idx is the raw 64 bit H3 level H3_RES index
 // we need bits 12 to 46
 // first 7 bits are high level 'region'
-// the remaining 27 bits are 9 sets of base 7 hierarchical indexing
+// the remaining 27 bits are H3_RES sets of base 7 hierarchical indexing
 function h3ToDecimal(idx) {
-  let bin = parseInt(idx.slice(0, 4), 16).toString(2) +
-            parseInt(idx.slice(4, 8), 16).toString(2) +
-            parseInt(idx.slice(8, 12), 16).toString(2) +
-            parseInt(idx.slice(12), 16).toString(2);
+  // first left pad to 16 digits with 0s
+  let idxPad = idx.padStart(16, 0);
+  // chop it into 4 hex digit pieces to avoid issues with overflow in parseInt
+  let bin = parseInt(idxPad.slice(0, 4), 16).toString(2).padStart(16, "0") +
+            parseInt(idxPad.slice(4, 8), 16).toString(2).padStart(16, "0") +
+            parseInt(idxPad.slice(8, 12), 16).toString(2).padStart(16, "0") +
+            parseInt(idxPad.slice(12), 16).toString(2).padStart(16, "0");
+  H3_CODE.prefix = bin.slice(0, 12);
+  H3_CODE.suffix = bin.slice(H3_CODE.lastSigBit);
   // extract the bits we need
-  bin = bin.slice(12, 46);
-  console.log(bin);
+  bin = bin.slice(12, H3_CODE.lastSigBit);
+  // console.log(bin);
   // the power of 7 we are currently working on
-  let pow = 9;
+  let pow = H3_RES;
   // first 7 bits are region
   let result = parseInt(bin.slice(0, 7), 2) * (7 ** pow);
   // remaining bits will be sliced 3 at a time into base-7 digits
@@ -289,23 +315,23 @@ function h3ToDecimal(idx) {
 function getCode(c) {
   // get x and y values that are integers 0..130400, 0..65200
   let xy = [
-    Math.round(rescale(c[0], -180, 180, 0, 130400)),
-    Math.round(rescale(c[1], -WEB_MERC_LIMIT, WEB_MERC_LIMIT, 0, 65200))
+    Math.round(rescale(c[0], -180, 180, 0, LON_RES)),
+    Math.round(rescale(c[1], -WEB_MERC_LIMIT, WEB_MERC_LIMIT, 0, LAT_RES))
   ];
   // rescale to unit square
   xy = [
-    rescale(xy[0], 0, 130400, 0, 1),
-    rescale(xy[1], 0, 65200, 0, 1)
+    rescale(xy[0], 0, LON_RES, 0, 1),
+    rescale(xy[1], 0, LAT_RES, 0, 1)
   ]
   // shuffle them
-  xy = doTheShuffle(xy);
+  xy = doTheShuffle(xy, CAT_SHUFFLES);
   // round back to ints
-  let x = Math.round(rescale(xy[0], 0, 1, 0, 130400));
-  let y = Math.round(rescale(xy[1], 0, 1, 0, 65200));
+  let x = Math.round(rescale(xy[0], 0, 1, 0, LON_RES));
+  let y = Math.round(rescale(xy[1], 0, 1, 0, LAT_RES));
 
   // convert to an index
-  let i = x + y * 130400;
-  return nBaseX(i, 2041);
+  let i = x + y * LON_RES;
+  return nBaseX(i, N_CHORDS_LL);
 }
 
 function nBaseX(n, x, alphabet) {
@@ -318,7 +344,7 @@ function nBaseX(n, x, alphabet) {
   }
   // console.log(result);
   if (alphabet) {
-    return result.map(i => alphabet[i]).join("");
+    return result.map(digit => alphabet[digit]).join("");
   } else {
     return result;
   }
@@ -332,9 +358,9 @@ function rescale(x, xmin, xmax, mn, mx) {
 
 // shuffle the lon lat in a unit square using Arnold's Cat, see
 // https://en.wikipedia.org/wiki/Arnold's_cat_map
-function doTheShuffle(c) {
+function doTheShuffle(c, n) {
   let xy = c;
-  for (let i = 0; i < 15; i ++) {
+  for (let i = 0; i < n; i ++) {
     xy = arnoldsCat(xy);
   }
   return xy;
