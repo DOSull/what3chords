@@ -70,7 +70,7 @@ function GetMyLocationSong(pos) {
             zoom: 13,
             transitionInterpolator: new deck.FlyToInterpolator({speed: 1.5}),
             transitionDuration: 'auto',
-            onTransitionEnd: setTooltip("something", window.innerWidth / 2, window.innerHeight / 2, [crd.latitude,crd.longitude])
+            onTransitionEnd: setTooltip("something", 1.03 * window.innerWidth / 2, 1.03 * window.innerHeight / 2, [crd.latitude,crd.longitude])
           }
         }
       );
