@@ -61,22 +61,27 @@ function GetMyLocationSong(pos) {
     var crd = pos.coords;
     console.log("Found geolocation. ",crd.longitude," ",crd.latitude);
 
-<<<<<<< HEAD
     var geodiv = document.getElementById('geolocate');
     geodiv.innerHTML += `<br>Returned ${crd.longitude} ${crd.latitude}<br>`;
     //alert(`Returned ${crd.longitude} ${crd.latitude}`)
-=======
-    //var geodiv = document.getElementById('geolocate');
-    //geodiv.innerHTML += `<br>Returned ${crd.longitude} ${crd.latitude}<br>`;
-    alert(`Returned ${crd.longitude} ${crd.latitude}`)
->>>>>>> dba5eb8d6de3521c5f80293a82139dcd8592c019
 
-    MY_DECKGL.viewState = {
-      longitude: crd.longitude,
-      latitude: crd.latitude,
-      zoom: 12,
-      transitionDuration: 3000
-    };
+    //MY_DECKGL.viewState = {
+    //  longitude: crd.longitude,
+    //  latitude: crd.latitude,
+    //  zoom: 12,
+    //  transitionDuration: 3000
+    //};
+
+    MY_DECKGL.setProps({
+          initialViewState: {
+            longitude:  crd.longitude,
+            latitude: crd.latitude,
+            zoom: 12,
+            transitionInterpolator: new FlyToInterpolator({speed: 1.5}),
+            transitionDuration: 'auto'
+          }
+        }
+      );
 };
 
 function GeolocationError(err){
