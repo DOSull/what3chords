@@ -75,6 +75,9 @@ function GetMyLocationSong(pos) {
 function GeolocationError(err){
   console.log("Attempted geolocation but failed.");
   console.warn(`ERROR(${err.code}): ${err.message}`);
+
+  var geodiv = document.getElementById('geolocate');
+  geodiv.innerHTML += `ERROR(${err.code}): ${err.message}`;
 };
 
 function ClickGeolocator() {
