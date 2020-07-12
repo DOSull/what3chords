@@ -243,18 +243,30 @@ function getChordTableRow(c) {
 }
 
 function getH3Code(c) {
+  // use the homebrew base X function to convert the decimal
+  // H3 index into base 1692 to index into the chord array 
   return nBaseX(h3ToDecimal(h3.geoToH3(c[1], c[0], 9)), 1692);
 }
 
 
+// idx is the raw 64 bit H3 level 9 index
+// we need bits 12 to 46
+// first 7 bits are high level 'region'
+// the remaining 27 bits are 9 sets of base 7 hierarchical indexing
 function h3ToDecimal(idx) {
+  // extract the bits we need
   let bin = nBaseX(parseInt(idx, 16), 2, "01").slice(12, 46)
-  let pos = 9;
-  let result = parseInt(bin.slice(0, 7), 2) * (7 ** pos);
+  // the power of 7 we are currently working on
+  let pow = 9;
+  // first 7 bits are region
+  let result = parseInt(bin.slice(0, 7), 2) * (7 ** pow);
+  // remaining bits will be sliced 3 at a time into base-7 digits
   let heptDigits = bin.slice(7);
-  while (pos > 0) {
-    pos--;
-    result = result + parseInt(heptDigits.slice(0, 3), 2) * (7 ** pos);
+  while (pow > 0) {
+    pow--; // decrement the power
+    // add the next 7-digit to the results
+    result = result + parseInt(heptDigits.slice(0, 3), 2) * (7 ** pow);
+    // move to the next digit
     heptDigits = heptDigits.slice(3);
   }
   return result;
