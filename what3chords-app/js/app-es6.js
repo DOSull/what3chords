@@ -64,7 +64,7 @@ function GetMyLocationSong(pos) {
     //var geodiv = document.getElementById('geolocate');
     //geodiv.innerHTML += `<br>Returned ${crd.longitude} ${crd.latitude}<br>`;
     alert(`Returned ${crd.longitude} ${crd.latitude}`)
-    
+
     MY_DECKGL.viewState = {
       longitude: crd.longitude,
       latitude: crd.latitude,
@@ -265,6 +265,7 @@ function h3ToDecimal(idx) {
             parseInt(idx.slice(12), 16).toString(2);
   // extract the bits we need
   bin = bin.slice(12, 46);
+  console.log(bin);
   // the power of 7 we are currently working on
   let pow = 9;
   // first 7 bits are region
