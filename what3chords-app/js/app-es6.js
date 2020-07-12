@@ -208,8 +208,9 @@ function render() {
 function setTooltip(object, x, y, c) {
   let el = document.getElementById("tooltip");
   if (object) {
+    // testing getting the H3 index for possible later extension
     let h3Index = h3.geoToH3(c[1], c[0], 9);
-    console.log(nBaseX(parseInt(h3Index, 16), 2, "01").slice(19, 46));
+    console.log(nBaseX(parseInt(h3Index, 16), 2, "01").slice(12, 46));
     let abc = getCode(c);
     // console.log(`${abc}`);
     el.innerHTML =
