@@ -218,7 +218,7 @@ function setTooltip(object, x, y, c) {
       ${getChordTableRow(CHORDS[abc[0]])}
       ${getChordTableRow(CHORDS[abc[1]])}
       ${getChordTableRow(CHORDS[abc[2]])}
-      <tr><td>H3</td><td colspan="3">${parseInt(h3.geoToH3(c[1], c[0], 9), 16).toString(2).slice(12,46)}</td></tr>
+      <tr><td>H3</td><td colspan="3">${h3.geoToH3(c[1], c[0], 15)}</td></tr>
       </table>`;
     el.style.left = `${x}px`;
     el.style.top = `${y}px`;
@@ -245,7 +245,7 @@ function getChordTableRow(c) {
 function getH3Code(c) {
   // use the homebrew base X function to convert the decimal
   // H3 index into base 1692 to index into the chord array
-  return nBaseX(h3ToDecimal(h3.geoToH3(c[1], c[0], 9)), 1692);
+  return nBaseX(h3ToDecimal(h3.geoToH3(c[1], c[0], 15)), 1692);
 }
 
 
