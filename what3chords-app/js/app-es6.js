@@ -60,7 +60,7 @@ function getThemeFromURL() {
   if (thisURL.includes("?")) {
     return thisURL.split("?").slice(-1)[0].split("=").slice(-1)[0];
   }
-  return "light;
+  return "light";
 }
 
 // Not very smart... just reload the page with theme in the query string
