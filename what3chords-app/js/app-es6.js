@@ -60,12 +60,14 @@ function switchTheme() {
 function GetMyLocationSong(pos) {
     var crd = pos.coords;
     console.log("Found geolocation. ",crd.longitude," ",crd.latitude);
+
+    var geodiv = document.getElementById('geolocate');
+    geodiv.innerHTML += `${crd.longitude} ${crd.latitude}`;
+
     MY_DECKGL.viewState = {
       longitude: crd.longitude,
       latitude: crd.latitude,
       zoom: 12,
-      pitch: 0,
-      bearing: 315,
       transitionDuration: 3000
     };
 };
