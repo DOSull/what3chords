@@ -60,17 +60,8 @@ function switchTheme() {
 function GetMyLocationSong(pos) {
     var crd = pos.coords;
     console.log("Found geolocation. ",crd.longitude," ",crd.latitude);
-
-    var geodiv = document.getElementById('geolocate');
-    geodiv.innerHTML += `<br>Returned ${crd.longitude} ${crd.latitude}<br>`;
-    //alert(`Returned ${crd.longitude} ${crd.latitude}`)
-
-    //MY_DECKGL.viewState = {
-    //  longitude: crd.longitude,
-    //  latitude: crd.latitude,
-    //  zoom: 12,
-    //  transitionDuration: 3000
-    //};
+    //var geodiv = document.getElementById('geolocate');
+    //geodiv.innerHTML += `<br>Returned ${crd.longitude} ${crd.latitude}<br>`;
 
     MY_DECKGL.setProps({
           initialViewState: {
@@ -87,9 +78,8 @@ function GetMyLocationSong(pos) {
 function GeolocationError(err){
   console.log("Attempted geolocation but failed.");
   console.warn(`ERROR(${err.code}): ${err.message}`);
-
-  var geodiv = document.getElementById('geolocate');
-  geodiv.innerHTML += `ERROR(${err.code}): ${err.message}`;
+  //var geodiv = document.getElementById('geolocate');
+  //geodiv.innerHTML += `ERROR(${err.code}): ${err.message}`;
 };
 
 function ClickGeolocator() {
@@ -97,7 +87,7 @@ function ClickGeolocator() {
   var options = {
     enableHighAccuracy: true,
     timeout: 1000,
-    maximumAge: 1000
+    maximumAge: 0
   };
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(GetMyLocationSong,GeolocationError, options);
