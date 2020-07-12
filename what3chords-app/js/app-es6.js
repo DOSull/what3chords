@@ -62,7 +62,7 @@ function GetMyLocationSong(pos) {
     console.log("Found geolocation. ",crd.longitude," ",crd.latitude);
 
     var geodiv = document.getElementById('geolocate');
-    geodiv.innerHTML += `${crd.longitude} ${crd.latitude}`;
+    geodiv.innerHTML += `<br>Returned ${crd.longitude} ${crd.latitude}<br>`;
 
     MY_DECKGL.viewState = {
       longitude: crd.longitude,
