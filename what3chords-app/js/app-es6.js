@@ -82,7 +82,12 @@ function ClickGeolocator() {
     timeout: 1000,
     maximumAge: 1000
   };
-  navigator.geolocation.getCurrentPosition(GetMyLocationSong,GeolocationError, options);
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(GetMyLocationSong,GeolocationError, options);
+  }
+  else {
+    console.warn("No geolocation support on this browser.")
+  }
 }
 
 document.getElementById("geolocate").addEventListener("click", ClickGeolocator);
@@ -110,12 +115,6 @@ $.when(
   processChordsData();
   render();
 });
-
-
-
-
-
-
 
 
 
