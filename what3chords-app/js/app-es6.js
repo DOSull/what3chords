@@ -69,12 +69,11 @@ function GetMyLocationSong(pos) {
             latitude: crd.latitude,
             zoom: 13,
             transitionInterpolator: new deck.FlyToInterpolator({speed: 1.5}),
-            transitionDuration: 'auto'
+            transitionDuration: 'auto',
+            onTransitionEnd: setTooltip("something", window.innerWidth / 2, window.innerHeight / 2, [crd.latitude,crd.longitude])
           }
         }
       );
-    // TODO: wait for transition to be done
-    setTooltip("something", window.innerWidth / 2, window.innerHeight / 2, [crd.latitude,crd.longitude]);
 };
 
 function GeolocationError(err){
