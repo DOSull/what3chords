@@ -73,7 +73,7 @@ function GetMyLocationSong(pos) {
           }
         }
       );
-    // wait for transition to be done
+    // TODO: wait for transition to be done
     setTooltip("something", window.innerWidth / 2, window.innerHeight / 2, [crd.latitude,crd.longitude]);
 };
 
