@@ -137,10 +137,19 @@ $.when(
 
 function getSamples() {
   // passing a single instrument name loads one instrument and returns the tone.js object
-  GUITAR = SampleLibrary.load({
-    baseUrl: "./data/",
-    instruments: "guitar-electric",
-    curve: "linear",
+  GUITAR = new Tone.Sampler({
+    'A3': './data/guitar-electric/A1.mp3',
+    'A#4': './data/guitar-electric/As2.mp3',
+    'B4': './data/guitar-electric/B2.mp3',
+    'C4': './data/guitar-electric/C2.mp3',
+    'D4': './data/guitar-electric/D2.mp3',
+    'D5': './data/guitar-electric/D3.mp3',
+    'E3': './data/guitar-electric/E1.mp3',
+    'E5': './data/guitar-electric/E3.mp3',
+    'F4': './data/guitar-electric/F2.mp3',
+    'G3': './data/guitar-electric/G1.mp3',
+    'G4': './data/guitar-electric/G2.mp3',
+    'G5': './data/guitar-electric/G3.mp3',
   });
   GUITAR.toMaster();
   console.log(GUITAR);
@@ -407,7 +416,7 @@ function scrambleBySevens(b, scrambler) {
 // ----------------------------------------
 // BRING THA NOIZ
 // ----------------------------------------
-const DIST = new Tone.Distortion(0.5).toMaster();
+//const DIST = new Tone.Distortion(0.5).toMaster();
 
 function playChord(notes1, notes2, notes3) {
   let chords = [];
@@ -424,6 +433,10 @@ function playChord(notes1, notes2, notes3) {
   let pattern = "dudud-d-";
   for (let i = 1; i <= chords.length; i++) {
     let c = chords[i - 1];
+    let vol = -3 - chords[i-1].length;
+    GUITAR.volume.value = vol;
+    console.log(vol);
+    console.log(chords[i-1]);
     // 4:4 time strummed up and down, missing the strum where pattern is -
     if (i < chords.length) {
       for (let p of pattern) {
