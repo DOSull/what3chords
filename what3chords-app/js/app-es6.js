@@ -369,15 +369,16 @@ function inverseH3Code(c3) {
          parseInt(bits.slice(48), 2).toString(16).padStart(4, "0");
 }
 
+// if middle bit is a 0 then
+// options are 000 001 100 101
+// if a 1 then 010 011 110
 const extraLevel10Bits = {
-  "0": ["00", "01", "10", "11"],
-  "1": ["00", "01", "10"],
+  "0": ["000", "001", "100", "101"],
+  "1": ["010", "011", "110"],
 }
 function retrieveLevel10(b) {
-  let extraBits = randomChoice(extraLevel10Bits[b]);
-  return extraBits[0] + b + extraBits[1];
+  return randomChoice(extraLevel10Bits[b]);
 }
-
 function randomChoice(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
@@ -406,7 +407,7 @@ function scrambleBySevens(b, scrambler) {
 // ----------------------------------------
 // BRING THA NOIZ
 // ----------------------------------------
-const DIST = new Tone.Distortion(0.25).toMaster();
+const DIST = new Tone.Distortion(0.5).toMaster();
 
 function playChord(notes1, notes2, notes3) {
   let chords = [];
