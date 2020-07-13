@@ -433,10 +433,8 @@ function playChord(notes1, notes2, notes3) {
   let pattern = "dudud-d-";
   for (let i = 1; i <= chords.length; i++) {
     let c = chords[i - 1];
-    let vol = -3 - chords[i-1].length;
+    let vol = -3 - chords[i-1].length; //adapt volume to number of notes being played
     GUITAR.volume.value = vol;
-    console.log(vol);
-    console.log(chords[i-1]);
     // 4:4 time strummed up and down, missing the strum where pattern is -
     if (i < chords.length) {
       for (let p of pattern) {
