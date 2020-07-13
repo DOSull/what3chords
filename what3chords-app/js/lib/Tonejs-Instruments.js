@@ -1,6 +1,6 @@
 /**
 * @fileoverview A sample library and quick-loader for tone.js
-* 
+*
 * @author N.P. Brosowsky (nbrosowsky@gmail.com)
 * https://github.com/nbrosowsky/tonejs-instruments
 */
@@ -11,7 +11,7 @@ var SampleLibrary = {
     baseUrl: '/samples/',
     list: ['bass-electric','bassoon','cello','clarinet','contrabass','flute','french-horn','guitar-acoustic','guitar-electric','guitar-nylon', 'harmonium','harp','organ','piano','saxophone','trombone','trumpet','tuba','violin','xylophone'],
     onload: null,
-  
+
     setExt: function (newExt) {
         var i
         for (i = 0; i <= this.list.length - 1; i++) {
@@ -298,25 +298,20 @@ var SampleLibrary = {
 
 
     'guitar-electric': {
-        'D#3': 'Ds3.[mp3|ogg]',
-        'D#4': 'Ds4.[mp3|ogg]',
-        'D#5': 'Ds5.[mp3|ogg]',
-        'E2': 'E2.[mp3|ogg]',
-        'F#2': 'Fs2.[mp3|ogg]',
-        'F#3': 'Fs3.[mp3|ogg]',
-        'F#4': 'Fs4.[mp3|ogg]',
-        'F#5': 'Fs5.[mp3|ogg]',
-        'A2': 'A2.[mp3|ogg]',
-        'A3': 'A3.[mp3|ogg]',
-        'A4': 'A4.[mp3|ogg]',
-        'A5': 'A5.[mp3|ogg]',
-        'C3': 'C3.[mp3|ogg]',
-        'C4': 'C4.[mp3|ogg]',
-        'C5': 'C5.[mp3|ogg]',
-        'C6': 'C6.[mp3|ogg]',
-        'C#2': 'Cs2.[mp3|ogg]'
+        'A3': 'A1.[mp3|ogg]',
+        'A#4': 'As2.[mp3|ogg]',
+        'B4': 'B2.[mp3|ogg]',
+        'C4': 'C2.[mp3|ogg]',
+        'D4': 'D2.[mp3|ogg]',
+        'D5': 'D3.[mp3|ogg]',
+        'E3': 'E1.[mp3|ogg]',
+        'E5': 'E3.[mp3|ogg]',
+        'F4': 'F2.[mp3|ogg]',
+        'G3': 'G1.[mp3|ogg]',
+        'G4': 'G2.[mp3|ogg]',
+        'G5': 'G3.[mp3|ogg]',
     },
-    
+
     'guitar-nylon': {
         'F#2': 'Fs2.[mp3|ogg]',
         'F#3': 'Fs3.[mp3|ogg]',
@@ -627,7 +622,7 @@ var SampleLibrary = {
         'G4': 'G4.[mp3|ogg]',
         'G5': 'G5.[mp3|ogg]',
         'G6': 'G6.[mp3|ogg]'
-        
+
     },
 
     'xylophone': {

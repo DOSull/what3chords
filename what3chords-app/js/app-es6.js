@@ -502,7 +502,7 @@ function playChord(notes1, notes2, notes3) {
 function strumChord (instrument, notes, now, gap, duration) {
   let t = now;
   for (let n of notes) {
-    instrument.triggerAttackRelease(n, duration, t).connect(dist);
+    instrument.triggerAttackRelease(n, duration, t);
     t = t + gap;
   }
 }
