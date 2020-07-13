@@ -456,7 +456,7 @@ function playChord(notes1, notes2, notes3) {
 function strumChord (instrument, notes, now, gap, duration) {
   let t = now;
   for (let n of notes) {
-    instrument.triggerAttackRelease(n, duration, t); //.connect(DIST);
+    instrument.triggerAttackRelease(n, duration, t + Math.random()*0.05); //.connect(DIST);
     t = t + gap;
   }
 }
