@@ -220,7 +220,7 @@ function setTooltip(object, x, y, c) {
     let h3c = getH3Code(c);
     let abc = getCode(c);
     let codeToUse =  USE_H3 ? h3c : abc;
-    console.log(`LatLon code: ${abc} H3 code: ${h3c}`);
+    // console.log(`LatLon code: ${abc} H3 code: ${h3c}`);
     el.innerHTML =
       `<table>
       <tr><td>Chord</td><td>Frets</td><td>Capo</td><td>Fingers</td></tr>
@@ -277,6 +277,9 @@ function getH3Code(c) {
   let h3Code = h3.geoToH3(c[1], c[0], H3_RES);
   let decCode = h3ToDecimal(h3Code);
   let result = nBaseX(decCode, N_CHORDS_H3);
+  let inv = inverseH3Code(result);
+  console.log(h3Code);
+  console.log(inv);
   return result;
 }
 
@@ -301,8 +304,8 @@ function h3ToDecimal(idx) {
   bin = bin.slice(12, H3_CODE.lastSigBit);
 
   // do any bitswapping
+  bin = scrambleBySevens(bin, SEVENS_FWD);
   // bin = bitswap(bin, BITSWAP);
-  // console.log(bin);
 
   // the power of 7 we are currently working on
   let pow = H3_RES - 1; // not using the 10th digit in the same way
@@ -322,26 +325,6 @@ function h3ToDecimal(idx) {
   return 2 * result + parseInt(heptDigits[1]);
 }
 
-
-// recover the 34 bits of the H3 code that index level H3_RES
-// starting from the 3 chord array indices
-function inverseH3Code(c3) {
-  // retrieve the decimal index
-  let index = c3[0] * N_CHORDS_H3 * N_CHORDS_H3 + c3[1] * N_CHORDS_H3 + c3[2];
-  let bits = "";
-  // the rightmost H3_RES digits are 7-ary digits encode as 3 bits
-  for (let i = 0; i < H3_RES; i++) {
-    bits = ((index % 7).toString(2).padStart(3, "0")) + bits;
-    index = Math.floor(index / 7);
-  }
-  // leftmost 7 digits are those remaining
-  bits = index.toString(2).padStart(7, "0") + bits;
-
-  // inverse any bitswapping
-  return bitswapInverse(bits,BITSWAP);
-}
-
-
 function nBaseX(n, x, alphabet) {
   let result = [];
   let digitsRequired = Math.floor(Math.log(n) / Math.log(x)) + 1;
@@ -356,6 +339,67 @@ function nBaseX(n, x, alphabet) {
   } else {
     return result;
   }
+}
+
+// recover the 37 bits of the H3 code that index level H3_RES
+// starting from the 3 chord array indices
+function inverseH3Code(c3) {
+  // retrieve the decimal index
+  let index = c3[0] * N_CHORDS_H3 * N_CHORDS_H3 + c3[1] * N_CHORDS_H3 + c3[2];
+  // the rightmost bit is from the 10th level code
+  let bits = (index % 2 == 1) ? "1" : "0";
+  bits = retrieveLevel10(bits);
+  index = Math.floor(index / 2);
+  // next 17 bits are 7-ary digits encode as 3 bits
+  for (let i = 0; i < H3_RES - 1; i++) {
+    bits = ((index % 7).toString(2).padStart(3, "0")) + bits;
+    index = Math.floor(index / 7);
+  }
+  // leftmost 7 digits are those remaining
+  bits = index.toString(2).padStart(7, "0") + bits;
+
+  // inverse any bitswapping
+  bits = scrambleBySevens(bits, SEVENS_BCK);
+  // return bitswapInverse(bits,BITSWAP);
+  bits = H3_CODE.prefix + bits + H3_CODE.suffix;
+  return parseInt(bits.slice(0, 16), 2).toString(16) +
+         parseInt(bits.slice(16, 32), 2).toString(16).padStart(4, "0") +
+         parseInt(bits.slice(32, 48), 2).toString(16).padStart(4, "0") +
+         parseInt(bits.slice(48), 2).toString(16).padStart(4, "0");
+}
+
+const extraLevel10Bits = {
+  "0": ["00", "01", "10", "11"],
+  "1": ["00", "01", "10"],
+}
+function retrieveLevel10(b) {
+  let extraBits = randomChoice(extraLevel10Bits[b]);
+  return extraBits[0] + b + extraBits[1];
+}
+
+function randomChoice(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+
+// This is simple for now
+// Could add reverse in place option by coding 1: -1
+// although this would make constructing the BCK
+// coder a bit trickier
+const SEVENS_FWD = [1, 2, 3, 4, 5, 6, 7, 8, 0];
+let SEVENS_BCK = Array(SEVENS_FWD.length);
+for (let i = 0; i < SEVENS_FWD.length; i++) {
+  SEVENS_BCK[SEVENS_FWD[i]] = i;
+}
+// takes the 37 bits and scrambles the middle from 8 to 34
+// by triple-bit encoded 7s
+function scrambleBySevens(b, scrambler) {
+  let toScramble = b.slice(7, 34);
+  let result = Array(9);
+  for (let res = 0; res < 9; res++) {
+    result[scrambler[res]] = toScramble.slice(res * 3, (res + 1) * 3);
+  }
+  return b.slice(0, 7) + result.join("") + b.slice(34);
 }
 
 // ----------------------------------------
