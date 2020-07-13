@@ -2,8 +2,8 @@
 const WEB_MERC_LIMIT = 85.051129;
 
 const USE_H3 = true;
-const N_CHORDS_H3 = 1692;
-const H3_RES = 9;
+const N_CHORDS_H3 = 2141;
+const H3_RES = 10;
 let H3_CODE = {
   prefix: null,
   suffix: null,
@@ -255,14 +255,13 @@ function getChordTableRow(c) {
 
 
 function isValidH3Code(bits) {
-  // returns false if a bitswap has resulted in an invalid h3 code, true otherwise.
-
+  // returns false if provided bits are an invalid h3 code, true otherwise
   // check first seven bits are valid h3 region codes between 0-121
   var regionCode = parseInt(bits.slice(0, 7), 2);
   if ((regionCode) < 0 || (regionCode) > 121) {
     return false
   };
-  for (let res = 8; res <= H3_RES; res += 3) {
+  for (let res = 8; res < bits.length; res += 3) {
   // for (let res = 1; res <= H3_RES; res++) {
     if (parseInt(bits.slice(res, res + 3), 2) == 7) {
     // if (parseInt(bits.slice((res - 1) * 3 + 8, (res) * 3 + 8), 2) == 7) {
@@ -272,18 +271,57 @@ function isValidH3Code(bits) {
   return true;
 }
 
-
 function getH3Code(c) {
   // use the homebrew base X function to convert the decimal
   // H3 index into base 1692 to index into the chord array
-  let h3Code = nBaseX(
-    h3ToDecimal(
-      h3.geoToH3(c[1], c[0], H3_RES)
-    ),
-    N_CHORDS_H3);
-  // console.log(inverseH3Code(h3Code));
-  return h3Code;
+  let h3Code = h3.geoToH3(c[1], c[0], H3_RES);
+  let decCode = h3ToDecimal(h3Code);
+  let result = nBaseX(decCode, N_CHORDS_H3);
+  return result;
 }
+
+// idx is the raw 64 bit H3 level H3_RES index
+// we need bits 12 to 49
+// first 7 bits are high level 'region'
+// next 27 are 9 7-ary binary encoded indices down the H3 hierarchy
+// last 3 are the 10th digit, but only one bit of that will be used
+// see: https://h3geo.org/docs/core-library/h3indexing
+function h3ToDecimal(idx) {
+  // first left pad to 16 digits with 0s
+  // not doing so causes all kinds of hell...
+  let idxPad = idx.padStart(16, 0);
+  // chop into 4 xbit pieces to avoid any issues with overflow in parseInt
+  let bin = parseInt(idxPad.slice(0, 4), 16).toString(2).padStart(16, "0") +
+            parseInt(idxPad.slice(4, 8), 16).toString(2).padStart(16, "0") +
+            parseInt(idxPad.slice(8, 12), 16).toString(2).padStart(16, "0") +
+            parseInt(idxPad.slice(12), 16).toString(2).padStart(16, "0");
+  H3_CODE.prefix = bin.slice(0, 12); // keep this for the reassembly
+  H3_CODE.suffix = bin.slice(H3_CODE.lastSigBit);
+  // extract the bits we need -- 37 of these
+  bin = bin.slice(12, H3_CODE.lastSigBit);
+
+  // do any bitswapping
+  // bin = bitswap(bin, BITSWAP);
+  // console.log(bin);
+
+  // the power of 7 we are currently working on
+  let pow = H3_RES - 1; // not using the 10th digit in the same way
+  // first 7 bits are region
+  let result = parseInt(bin.slice(0, 7), 2) * (7 ** pow);
+  // remaining bits untill the last three will be sliced
+  // 3 at a time into base-7 digits
+  let heptDigits = bin.slice(7);
+  while (pow > 0) {
+    pow --; // decrement the power
+    // add the next 7-digit to the results
+    result = result + parseInt(heptDigits.slice(0, 3), 2) * (7 ** pow);
+    // move to the next digit
+    heptDigits = heptDigits.slice(3);
+  }
+  // final bit... just use the middle one
+  return 2 * result + parseInt(heptDigits[1]);
+}
+
 
 // recover the 34 bits of the H3 code that index level H3_RES
 // starting from the 3 chord array indices
@@ -301,41 +339,6 @@ function inverseH3Code(c3) {
 
   // inverse any bitswapping
   return bitswapInverse(bits,BITSWAP);
-}
-
-// idx is the raw 64 bit H3 level H3_RES index
-// we need bits 12 to 46
-// first 7 bits are high level 'region'
-// the remaining 27 bits are H3_RES sets of base 7 hierarchical indexing
-function h3ToDecimal(idx) {
-  // first left pad to 16 digits with 0s
-  let idxPad = idx.padStart(16, 0);
-  // chop it into 4 hex digit pieces to avoid issues with overflow in parseInt
-  let bin = parseInt(idxPad.slice(0, 4), 16).toString(2).padStart(16, "0") +
-            parseInt(idxPad.slice(4, 8), 16).toString(2).padStart(16, "0") +
-            parseInt(idxPad.slice(8, 12), 16).toString(2).padStart(16, "0") +
-            parseInt(idxPad.slice(12), 16).toString(2).padStart(16, "0");
-  H3_CODE.prefix = bin.slice(0, 12);
-  H3_CODE.suffix = bin.slice(H3_CODE.lastSigBit);
-  // extract the bits we need
-  bin = bin.slice(12, H3_CODE.lastSigBit);
-  // do any bitswapping
-  bin = bitswap(bin,BITSWAP);
-  // console.log(bin);
-  // the power of 7 we are currently working on
-  let pow = H3_RES;
-  // first 7 bits are region
-  let result = parseInt(bin.slice(0, 7), 2) * (7 ** pow);
-  // remaining bits will be sliced 3 at a time into base-7 digits
-  let heptDigits = bin.slice(7);
-  while (pow > 0) {
-    pow--; // decrement the power
-    // add the next 7-digit to the results
-    result = result + parseInt(heptDigits.slice(0, 3), 2) * (7 ** pow);
-    // move to the next digit
-    heptDigits = heptDigits.slice(3);
-  }
-  return result;
 }
 
 
