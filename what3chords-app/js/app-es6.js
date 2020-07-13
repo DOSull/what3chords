@@ -277,9 +277,10 @@ function getH3Code(c) {
   let h3Code = h3.geoToH3(c[1], c[0], H3_RES);
   let decCode = h3ToDecimal(h3Code);
   let result = nBaseX(decCode, N_CHORDS_H3);
-  let inv = inverseH3Code(result);
-  console.log(h3Code);
-  console.log(inv);
+  // check the return trip:
+  // let inv = inverseH3Code(result);
+  // console.log(h3Code);
+  // console.log(inv);
   return result;
 }
 
@@ -426,7 +427,7 @@ function playChord(notes1, notes2, notes3) {
     if (i < chords.length) {
       for (let p of pattern) {
         if (p != "-") {
-          strumChord(GUITAR, c, now, 0.01, 3 * durn);
+          strumChord(GUITAR, c, now, 0.01, 2 * durn);
         }
         now = now + durn;
         c.reverse(); // to get down/up strums
@@ -434,7 +435,7 @@ function playChord(notes1, notes2, notes3) {
       now = now + 0.0;
     } else {
       // last time, just play it once
-      strumChord(GUITAR, c, now, 0.01, 4 * durn);
+      strumChord(GUITAR, c, now, 0.01, 5 * durn);
     }
   }
 }
@@ -443,7 +444,7 @@ function playChord(notes1, notes2, notes3) {
 function strumChord (instrument, notes, now, gap, duration) {
   let t = now;
   for (let n of notes) {
-    instrument.triggerAttackRelease(n, duration, t).connect(DIST);
+    instrument.triggerAttackRelease(n, duration, t); //.connect(DIST);
     t = t + gap;
   }
 }
