@@ -258,6 +258,30 @@ function getChordTableRow(c) {
   </tr>`;
 }
 
+// Competing scrambler
+// a dictionary of forward bit swaps of the 34 bits from
+// position 13 to position 46
+const H3_SCRAMBLE = {
+   0:  7,  1: 10,  2: 13,  3: 16,  4: 19,  5: 22,  6: 25,  7: 28,  8: 31,
+   9:  8, 10: 11, 11: 14, 12: 17, 13: 20, 14: 23, 15: 26, 16: 29, 17: 32,
+  18:  9, 19: 12, 20: 15, 21: 18, 22: 21, 23: 24, 24: 27, 25: 30, 26: 33,
+  27:  6, 28:  5, 29:  4, 30:  3, 31:  2, 32:  1, 33:  0
+};
+// inversion of the forward scrambler
+const H3_DESCRAMBLE =
+  Object.fromEntries(Object.entries(H3_SCRAMBLE).map(kv => kv.reverse()));
+
+// s: string to scramble
+// forward: use the forward scramble if true, inverse if false
+function scramble(s, forward) {
+  let n = Object.entries(H3_SCRAMBLE).map(x => x[0]);
+  if (forward) {
+    return n.map(b => s[H3_SCRAMBLE[b]]).join("");
+  } else {
+    return n.map(b => s[H3_DESCRAMBLE[b]]).join("");
+  }
+}
+
 
 
 // functions bitswap and bitswapInverse exist to bridge between
@@ -302,7 +326,7 @@ function swapbits(twoPosArray,bits) {
   return newbits;
 }
 
-function bitswap(bits,BITSWAPlist) {
+function bitswap(bits, BITSWAPlist) {
   var swappedbits = bits;
   for(var currSwapPos = 0; currSwapPos < BITSWAPlist.length; currSwapPos++) {
     var candidatebits = swapbits(BITSWAPlist[currSwapPos],swappedbits);
@@ -313,20 +337,20 @@ function bitswap(bits,BITSWAPlist) {
   return swappedbits;
 }
 
-function bitswapInverse(bits,BITSWAPlist) {
-  return bitswap(bits,BITSWAPlist.reverse());
+function bitswapInverse(bits, BITSWAPlist) {
+  return bitswap(bits, BITSWAPlist.reverse());
 }
 
 function checkH3Validity(bits) {
   // returns false if a bitswap has resulted in an invalid h3 code, true otherwise.
 
   // check first seven bits are valid h3 region codes between 0-121
-  var regionCode = parseInt(bits.slice(0,8),2);
+  var regionCode = parseInt(bits.slice(0, 8), 2);
   if ((regionCode) < 0 || (regionCode) > 121) {
     return false
   };
   for(var res = 1; res <= H3_RES; res++) {
-    if (parseInt(bits.slice((res-1)*3+8,(res)*3+8),2) == 7) {
+    if (parseInt(bits.slice((res-1) * 3 + 8, (res) * 3 + 8), 2) == 7) {
       return false
     }
   }
@@ -502,7 +526,7 @@ function playChord(notes1, notes2, notes3) {
 function strumChord (instrument, notes, now, gap, duration) {
   let t = now;
   for (let n of notes) {
-    instrument.triggerAttackRelease(n, duration, t);
+    instrument.triggerAttackRelease(n, duration, t).connect(dist);
     t = t + gap;
   }
 }
