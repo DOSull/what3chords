@@ -244,6 +244,12 @@ function setTooltip(object, x, y, c) {
     el.style.visibility = "visible";
     el.style.display = "block";
 
+    // yes, this should be one call and not manually take parameters and... punkrock
+
+    drawChord(CHORDS[codeToUse[0]], '#chord1');
+    drawChord(CHORDS[codeToUse[1]], '#chord2');
+    drawChord(CHORDS[codeToUse[2]], '#chord3');
+
     playChord(CHORDS[codeToUse[0]].midi,
               CHORDS[codeToUse[1]].midi,
               CHORDS[codeToUse[2]].midi);
@@ -252,6 +258,26 @@ function setTooltip(object, x, y, c) {
     el.style.visibility = "hidden";
     el.style.display = "none";
   }
+}
+
+// itshappening.gif
+function drawChord(c, d) {
+  // s for strings
+  var s = [1, 2, 3, 4, 5, 6];
+  // x should be a [[string, fret], [string, fret], etc.] set
+  var x = s.map(function(e, i) {
+    return [e, c.frets[i]];
+  });
+
+  var chart = new svguitar.SVGuitarChord(d);
+  chart.configure({
+      style: 'handdrawn',
+      title: c.chord
+    }).chord({
+      fingers: x
+      // barres: [ {fromString: 6, toString: 1, fret: c.capo, text: c.capo}]
+
+    }).draw();
 }
 
 function getChordTableRow(c) {
