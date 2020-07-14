@@ -439,9 +439,9 @@ function playChord(notes1, notes2, notes3) {
     if (i < chords.length) {
       for (let p of pattern) {
         if (p != "-") {
-          strumChord(GUITAR, c, now, 0.01, 2 * durn);
+          strumChord(GUITAR, c, now, 0.02, 1.5 * durn);
         }
-        now = now + durn;
+        now = now + durn * (0.9 + 0.1 * Math.random());
         c.reverse(); // to get down/up strums
       }
       now = now + 0.0;
@@ -456,8 +456,8 @@ function playChord(notes1, notes2, notes3) {
 function strumChord (instrument, notes, now, gap, duration) {
   let t = now;
   for (let n of notes) {
-    instrument.triggerAttackRelease(n, duration, t + Math.random()*0.05); //.connect(DIST);
-    t = t + gap;
+    instrument.triggerAttackRelease(n, duration, t); //.connect(DIST);
+    t = t + gap * (0.9 + 0.1 * Math.random());
   }
 }
 
