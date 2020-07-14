@@ -227,8 +227,9 @@ function setTooltip(object, x, y, c) {
     // no idea how to inject it into a layer
     // let hex = h3.h3ToGeoBoundary(h3.geoToH3(c[1], c[0], H3_RES));
     let h3c = getH3Code(c);
-    let abc = getCode(c);
-    let codeToUse =  USE_H3 ? h3c : abc;
+    // let abc = getCode(c);
+    // let codeToUse =  USE_H3 ? h3c : abc;
+    let codeToUse =  h3c;
     // console.log(`LatLon code: ${abc} H3 code: ${h3c}`);
     el.innerHTML =
       `<table>
@@ -397,11 +398,19 @@ function randomChoice(arr) {
 // Could add reverse in place option by coding 1: -1
 // although this would make constructing the BCK
 // coder a bit trickier
-const SEVENS_FWD = [1, 2, 3, 4, 5, 6, 7, 8, 0];
-let SEVENS_BCK = Array(SEVENS_FWD.length);
-for (let i = 0; i < SEVENS_FWD.length; i++) {
-  SEVENS_BCK[SEVENS_FWD[i]] = i;
+const SEVENS_FWD = [2, 5, 0, 4, 3, 1, 8, 6, 7];
+const SEVENS_BCK = makeInverseScrambler(SEVENS_FWD);
+
+// better to make this a function to avoid making a global scope loop counter
+function makeInverseScrambler(fwd) {
+  let bck = Array(fwd.length);
+  for (let from = 0; from < bck.length; from++) {
+    let to = fwd[from]
+    bck[to] = from;
+  }
+  return bck;
 }
+
 // takes the 37 bits and scrambles the middle from 8 to 34
 // by triple-bit encoded 7s
 function scrambleBySevens(b, scrambler) {
@@ -469,82 +478,89 @@ function notesToFreq(n) {
 // --------------------------------------
 // THE DNA JUNKYARD
 // --------------------------------------
-const LON_RES = 130400;
-const LAT_RES = 65200;
-const CAT_SHUFFLES = 15;
-const N_CHORDS_LL = 2141;
 
-// get a 3 digit sequence of 0..2140 indices into the Array of chords
-function getCode(c) {
-  // get x and y values that are integers 0..130400, 0..65200
-  let xy = [
-    Math.round(rescale(c[0], -180, 180, 0, LON_RES)),
-    Math.round(rescale(c[1], -WEB_MERC_LIMIT, WEB_MERC_LIMIT, 0, LAT_RES))
-  ];
-  // rescale to unit square
-  xy = [
-    rescale(xy[0], 0, LON_RES, 0, 1),
-    rescale(xy[1], 0, LAT_RES, 0, 1)
-  ]
-  // shuffle them
-  xy = doTheShuffle(xy, CAT_SHUFFLES);
-  // round back to ints
-  let x = Math.round(rescale(xy[0], 0, 1, 0, LON_RES));
-  let y = Math.round(rescale(xy[1], 0, 1, 0, LAT_RES));
-
-  // convert to an index
-  let i = x + y * LON_RES;
-  return nBaseX(i, N_CHORDS_LL);
-}
-
-
-// rescale x from xmin-xmax to mn-mx
-function rescale(x, xmin, xmax, mn, mx) {
-  return mn + (mx - mn) * (x - xmin) / (xmax - xmin);
-}
-
-
-// shuffle the lon lat in a unit square using Arnold's Cat, see
-// https://en.wikipedia.org/wiki/Arnold's_cat_map
-function doTheShuffle(c, n) {
-  let xy = c;
-  for (let i = 0; i < n; i ++) {
-    xy = arnoldsCat(xy);
-  }
-  return xy;
-}
-
-function arnoldsCat(xy) {
-  return [(2 * xy[0] + xy[1]) % 1, (xy[0] + xy[1]) % 1];
-}
+// --------------------------------------
+// Long-lat grid based approach
+// --------------------------------------
+//
+// const LON_RES = 130400;
+// const LAT_RES = 65200;
+// const CAT_SHUFFLES = 15;
+// const N_CHORDS_LL = 2141;
+//
+// // get a 3 digit sequence of 0..2140 indices into the Array of chords
+// function getCode(c) {
+//   // get x and y values that are integers 0..130400, 0..65200
+//   let xy = [
+//     Math.round(rescale(c[0], -180, 180, 0, LON_RES)),
+//     Math.round(rescale(c[1], -WEB_MERC_LIMIT, WEB_MERC_LIMIT, 0, LAT_RES))
+//   ];
+//   // rescale to unit square
+//   xy = [
+//     rescale(xy[0], 0, LON_RES, 0, 1),
+//     rescale(xy[1], 0, LAT_RES, 0, 1)
+//   ]
+//   // shuffle them
+//   xy = doTheShuffle(xy, CAT_SHUFFLES);
+//   // round back to ints
+//   let x = Math.round(rescale(xy[0], 0, 1, 0, LON_RES));
+//   let y = Math.round(rescale(xy[1], 0, 1, 0, LAT_RES));
+//
+//   // convert to an index
+//   let i = x + y * LON_RES;
+//   return nBaseX(i, N_CHORDS_LL);
+// }
+//
+//
+// // rescale x from xmin-xmax to mn-mx
+// function rescale(x, xmin, xmax, mn, mx) {
+//   return mn + (mx - mn) * (x - xmin) / (xmax - xmin);
+// }
+//
+//
+// // shuffle the lon lat in a unit square using Arnold's Cat, see
+// // https://en.wikipedia.org/wiki/Arnold's_cat_map
+// function doTheShuffle(c, n) {
+//   let xy = c;
+//   for (let i = 0; i < n; i ++) {
+//     xy = arnoldsCat(xy);
+//   }
+//   return xy;
+// }
+//
+// function arnoldsCat(xy) {
+//   return [(2 * xy[0] + xy[1]) % 1, (xy[0] + xy[1]) % 1];
+// }
 
 
 // Competing scrambler
 // a dictionary of forward bit swaps of the 34 bits from
 // position 13 to position 46
-const H3_SCRAMBLE = {
-   0:  7,  1: 10,  2: 13,  3: 16,  4: 19,  5: 22,  6: 25,  7: 28,  8: 31,
-   9:  8, 10: 11, 11: 14, 12: 17, 13: 20, 14: 23, 15: 26, 16: 29, 17: 32,
-  18:  9, 19: 12, 20: 15, 21: 18, 22: 21, 23: 24, 24: 27, 25: 30, 26: 33,
-  27:  6, 28:  5, 29:  4, 30:  3, 31:  2, 32:  1, 33:  0
-};
-// inversion of the forward scrambler
-const H3_DESCRAMBLE =
-  Object.fromEntries(Object.entries(H3_SCRAMBLE).map(kv => kv.reverse()));
+// const H3_SCRAMBLE = {
+//    0:  7,  1: 10,  2: 13,  3: 16,  4: 19,  5: 22,  6: 25,  7: 28,  8: 31,
+//    9:  8, 10: 11, 11: 14, 12: 17, 13: 20, 14: 23, 15: 26, 16: 29, 17: 32,
+//   18:  9, 19: 12, 20: 15, 21: 18, 22: 21, 23: 24, 24: 27, 25: 30, 26: 33,
+//   27:  6, 28:  5, 29:  4, 30:  3, 31:  2, 32:  1, 33:  0
+// };
+// // inversion of the forward scrambler
+// const H3_DESCRAMBLE =
+//   Object.fromEntries(Object.entries(H3_SCRAMBLE).map(kv => kv.reverse()));
+//
+// // s: string to scramble
+// // forward: use the forward scramble if true, inverse if false
+// function scramble(s, forward) {
+//   let n = Object.entries(H3_SCRAMBLE).map(x => x[0]);
+//   if (forward) {
+//     return n.map(b => s[H3_SCRAMBLE[b]]).join("");
+//   } else {
+//     return n.map(b => s[H3_DESCRAMBLE[b]]).join("");
+//   }
+// }
 
-// s: string to scramble
-// forward: use the forward scramble if true, inverse if false
-function scramble(s, forward) {
-  let n = Object.entries(H3_SCRAMBLE).map(x => x[0]);
-  if (forward) {
-    return n.map(b => s[H3_SCRAMBLE[b]]).join("");
-  } else {
-    return n.map(b => s[H3_DESCRAMBLE[b]]).join("");
-  }
-}
 
-
-
+// --------------------------------------
+// Luke's H3 bitswapper code - not level 9 compatible
+// --------------------------------------
 // functions bitswap and bitswapInverse exist to bridge between
 // the relative spatial monotony (autocorrelation in chords)
 // of just using h3 indices and the total chord randomness
@@ -575,29 +591,66 @@ function scramble(s, forward) {
 //
 // note tha
 
-var BITSWAP = [
-  [6, 3 * H3_RES - 1],
-  [12, 3 * H3_RES - 2]
-];
+// var BITSWAP = [
+//   [6, 3 * H3_RES - 1],
+//   [12, 3 * H3_RES - 2]
+// ];
+//
+// function swapbits(twoPosArray,bits) {
+//   var newbits = bits;
+//   newbits = newbits.substr(0, twoPosArray[0]) + bits.substr(twoPosArray[1],1) + newbits.substr(twoPosArray[0]+1);
+//   newbits = newbits.substr(0, twoPosArray[1]) + bits.substr(twoPosArray[0],1) + newbits.substr(twoPosArray[1]+1);
+//   return newbits;
+// }
+//
+// function bitswap(bits, BITSWAPlist) {
+//   var swappedbits = bits;
+//   for(var currSwapPos = 0; currSwapPos < BITSWAPlist.length; currSwapPos++) {
+//     var candidatebits = swapbits(BITSWAPlist[currSwapPos],swappedbits);
+//     if (isValidH3Code(candidatebits)) {
+//       swappedbits = candidatebits;
+//     }
+//   }
+//   return swappedbits;
+// }
+//
+// function bitswapInverse(bits, BITSWAPlist) {
+//   return bitswap(bits, BITSWAPlist.reverse());
+// }
 
-function swapbits(twoPosArray,bits) {
-  var newbits = bits;
-  newbits = newbits.substr(0, twoPosArray[0]) + bits.substr(twoPosArray[1],1) + newbits.substr(twoPosArray[0]+1);
-  newbits = newbits.substr(0, twoPosArray[1]) + bits.substr(twoPosArray[0],1) + newbits.substr(twoPosArray[1]+1);
-  return newbits;
-}
-
-function bitswap(bits, BITSWAPlist) {
-  var swappedbits = bits;
-  for(var currSwapPos = 0; currSwapPos < BITSWAPlist.length; currSwapPos++) {
-    var candidatebits = swapbits(BITSWAPlist[currSwapPos],swappedbits);
-    if (isValidH3Code(candidatebits)) {
-      swappedbits = candidatebits;
-    }
-  }
-  return swappedbits;
-}
-
-function bitswapInverse(bits, BITSWAPlist) {
-  return bitswap(bits, BITSWAPlist.reverse());
-}
+// The makings of a more complicated H3 scrambler
+// const SEVENS_FWD = [[0], [1, lshift], [2, rev], [3, rshift],
+//                     [4], [5], [6], [7], [8]];
+// const SEVENS_BCK = makeReverseScrambler(SEVENS_FWD);
+//
+// function makeReverseScrambler(fwd) {
+//   let bck = Array(fwd.length);
+//   for (let f = 0; f < bck.length; f++) {
+//     let change = fwd[f];
+//     let t = change[0];
+//     bck[t] = [f];
+//     if (change.length > 1) {
+//       let op = change[1];
+//       switch (op) {
+//         case rev:
+//           bck[t].push(rev);
+//           break;
+//         case lshift:
+//           bck[t].push(rshift);
+//           break;
+//         default:
+//           bck[t].push(lshift);
+//       }
+//     }
+//   }
+//   return bck;
+// }
+// function rev(s) {
+//   return s.split("").reverse().join("");
+// }
+// function lshift(s) {
+//   return s.slice(1) + s[0];
+// }
+// function rshift(s) {
+//   return s[2] + s.slice[0, 2];
+// }
