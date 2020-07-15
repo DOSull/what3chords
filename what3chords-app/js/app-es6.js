@@ -189,7 +189,7 @@ function processCapo(posn) {
   if (posn.capo) {
     return posn.baseFret;
   } else {
-    return 0;
+    return 1;
   }
 }
 
