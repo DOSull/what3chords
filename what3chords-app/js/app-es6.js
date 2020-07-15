@@ -167,7 +167,7 @@ function processChordsData() {
         CHORDS.push({
           chord: `${v.key}${v.suffix} v${(i + 1)}`,
           midi: position.midi,
-          frets: processFrets(position.frets).reverse(),
+          frets: processFrets(position.frets),
           capo: processCapo(position),
           fingers: position.fingers.join(""),
         });
@@ -181,6 +181,7 @@ function processFrets(fretPositions) {
   for (let fret of fretPositions) {
     symbols.push(fret < 0 ? "X" : fret);
   }
+  symbols = symbols.reverse()
   return symbols.join("");
 }
 
