@@ -167,7 +167,7 @@ function processChordsData() {
         CHORDS.push({
           chord: `${v.key}${v.suffix} v${(i + 1)}`,
           midi: position.midi,
-          frets: processFrets(position.frets),
+          frets: processFrets(position.frets).reverse(),
           capo: processCapo(position),
           fingers: position.fingers.join(""),
         });
@@ -268,7 +268,7 @@ function drawChord(c, chart) {
   var s = [1, 2, 3, 4, 5, 6];
   // x should be a [[string, fret], [string, fret], etc.] array of arrays
   var x = s.map(function(e, i) {
-      if (c.frets[i] === 'X') {
+      if (c.frets[i]) === 'X') {
         return [ e, 'x' ]
       }
       else {
