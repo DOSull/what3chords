@@ -170,10 +170,20 @@ function processChordsData() {
           frets: processFrets(position.frets),
           capo: processCapo(position),
           fingers: position.fingers.join(""),
+          bar: processBar(position)
         });
       }
     }
   }
+}
+
+function processBar(posn) {
+  if (posn.barres) {
+    return posn.barres;
+  } else {
+    return -1;
+  }
+
 }
 
 function processFrets(fretPositions) {
@@ -284,7 +294,7 @@ function drawChord(c, chart) {
 
   chart.chord({
       fingers: x,
-      barres: ((c.capo > 1) ? [{fromString: 6, toString: 1, fret: 1}] : [])
+      barres: ((c.bar > 0) ? [{fromString: 6, toString: 1, fret: 1}] : [])
       //barres: [ {fromString: 6, toString: 1, fret: c.capo, text: c.capo}]
     }).configure({
         //style: 'handdrawn',    // HANDDRAWN DOESNT WORK AT THE MOMENT
