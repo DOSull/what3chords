@@ -273,7 +273,7 @@ function drawChord(c, chart) {
         return [ e, 'x' ]
       }
       else {
-        return [ e, parseInt(c.frets[i],10) + c.capo];
+        return [ e, parseInt(c.frets[i],10) + c.capo - 1 ];
       }
     }
   );
@@ -284,7 +284,8 @@ function drawChord(c, chart) {
 
   chart.chord({
       fingers: x,
-      barres: ((c.capo) ? [{fromString: 6, toString: 1, fret: c.capo, text: c.capo}] : [])
+      // just turning barres off for a second, it's kind of inconsistent in the json
+      // barres: ((c.capo) ? [{fromString: 6, toString: 1, fret: c.capo, text: c.capo}] : [])
       //barres: [ {fromString: 6, toString: 1, fret: c.capo, text: c.capo}]
     }).configure({
         //style: 'handdrawn',    // HANDDRAWN DOESNT WORK AT THE MOMENT
