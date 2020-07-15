@@ -266,7 +266,7 @@ function setTooltip(object, x, y, c) {
 function drawChord(c, chart) {
   // s for strings
   var s = [1, 2, 3, 4, 5, 6];
-  // x should be a [[string, fret], [string, fret], etc.] set
+  // x should be a [[string, fret], [string, fret], etc.] array of arrays
   var x = s.map(function(e, i) {
       if (c.frets[i] === 'X') {
         return [ e, 'x' ]
@@ -280,8 +280,6 @@ function drawChord(c, chart) {
   console.log("chart: ",chart);
   console.log("s: ",s);
   console.log("x: ",x);
-
-  //
 
   chart.chord({
       fingers: x,
