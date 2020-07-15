@@ -218,7 +218,7 @@ function render() {
   });
 };
 
-var chartSelectors = ["#chord1","chord2","chord3"];
+var chartSelectors = ["#chord1","#chord2","#chord3"];
 var charts = [0,1,2].map(i => new svguitar.SVGuitarChord(chartSelectors[i]));
 
 // build the tooltip
@@ -269,10 +269,10 @@ function drawChord(c, chart) {
   // x should be a [[string, fret], [string, fret], etc.] set
   var x = s.map(function(e, i) {
       if (c.frets[i] === 'X') {
-        return [ i, 'x' ]
+        return [ e, 'x' ]
       }
       else {
-        return [ i, parseInt(c.frets[i],10)];
+        return [ e, parseInt(c.frets[i],10)];
       }
     }
   );
