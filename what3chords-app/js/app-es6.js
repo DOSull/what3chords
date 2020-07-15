@@ -287,7 +287,8 @@ function drawChord(c, chart) {
       //barres: [ {fromString: 6, toString: 1, fret: c.capo, text: c.capo}]
     }).configure({
         //style: 'handdrawn',    // HANDDRAWN DOESNT WORK AT THE MOMENT
-        title: c.chord
+        title: c.chord,
+        position: c.capo
       }).draw();
 }
 
