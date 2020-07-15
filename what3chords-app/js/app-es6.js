@@ -261,15 +261,19 @@ function setTooltip(object, x, y, c) {
 }
 
 // itshappening.gif
-function drawChord(c, d) {
+function drawChord(c, container) {
   // s for strings
   var s = [1, 2, 3, 4, 5, 6];
   // x should be a [[string, fret], [string, fret], etc.] set
   var x = s.map(function(e, i) {
     return [e, c.frets[i]];
   });
+  console.log("c: ",c);
+  console.log("container: ",container);
+  console.log("s: ",s);
+  console.log("x: ",x);
 
-  var chart = new svguitar.SVGuitarChord(d);
+  var chart = new svguitar.SVGuitarChord(container);
   chart.configure({
       style: 'handdrawn',
       title: c.chord
