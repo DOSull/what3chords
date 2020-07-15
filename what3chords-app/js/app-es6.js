@@ -294,7 +294,8 @@ function drawChord(c, chart) {
 
   chart.chord({
       fingers: x,
-      barres: ((c.bar > 0) ? [{fromString: 6, toString: 1, fret: 1}] : [])
+      barres: []
+      //barres: ((c.bar > 0) ? [{fromString: 6, toString: 1, fret: 1}] : [])
       //barres: [ {fromString: 6, toString: 1, fret: c.capo, text: c.capo}]
     }).configure({
         //style: 'handdrawn',    // HANDDRAWN DOESNT WORK AT THE MOMENT
