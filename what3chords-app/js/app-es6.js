@@ -231,14 +231,14 @@ function setTooltip(object, x, y, c) {
     // let codeToUse =  USE_H3 ? h3c : abc;
     let codeToUse =  h3c;
     // console.log(`LatLon code: ${abc} H3 code: ${h3c}`);
-    el.innerHTML =
-      `<table>
-      <tr><td>Chord</td><td>Frets</td><td>Capo</td><td>Fingers</td></tr>
-      ${getChordTableRow(CHORDS[codeToUse[0]])}
-      ${getChordTableRow(CHORDS[codeToUse[1]])}
-      ${getChordTableRow(CHORDS[codeToUse[2]])}
-      <tr><td>H3</td><td colspan="3">${h3.geoToH3(c[1], c[0], H3_RES)}</td></tr>
-      </table>`;
+    // el.innerHTML =
+    //   `<table>
+    //   <tr><td>Chord</td><td>Frets</td><td>Capo</td><td>Fingers</td></tr>
+    //   ${getChordTableRow(CHORDS[codeToUse[0]])}
+    //   ${getChordTableRow(CHORDS[codeToUse[1]])}
+    //   ${getChordTableRow(CHORDS[codeToUse[2]])}
+    //   <tr><td>H3</td><td colspan="3">${h3.geoToH3(c[1], c[0], H3_RES)}</td></tr>
+    //   </table>`;
     el.style.left = `${x}px`;
     el.style.top = `${y}px`;
     el.style.visibility = "visible";
