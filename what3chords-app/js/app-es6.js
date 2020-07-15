@@ -218,6 +218,8 @@ function render() {
   });
 };
 
+var chartSelectors = ["#chord1","chord2","chord3"];
+var charts = [0,1,2].map(i => new svguitar.SVGuitarChord(chartSelectors[i]));
 
 // build the tooltip
 function setTooltip(object, x, y, c) {
@@ -246,9 +248,9 @@ function setTooltip(object, x, y, c) {
 
     // yes, this should be one call and not manually take parameters and... punkrock
 
-    drawChord(CHORDS[codeToUse[0]], '#chord1');
-    drawChord(CHORDS[codeToUse[1]], '#chord2');
-    drawChord(CHORDS[codeToUse[2]], '#chord3');
+    drawChord(CHORDS[codeToUse[0]], charts[0]);
+    drawChord(CHORDS[codeToUse[1]], charts[1]);
+    drawChord(CHORDS[codeToUse[2]], charts[2]);
 
     playChord(CHORDS[codeToUse[0]].midi,
               CHORDS[codeToUse[1]].midi,
@@ -261,27 +263,33 @@ function setTooltip(object, x, y, c) {
 }
 
 // itshappening.gif
-function drawChord(c, container) {
+function drawChord(c, chart) {
   // s for strings
   var s = [1, 2, 3, 4, 5, 6];
   // x should be a [[string, fret], [string, fret], etc.] set
   var x = s.map(function(e, i) {
-    return [e, c.frets[i]];
-  });
+      if (c.frets[i] === 'X') {
+        return [ i, 'x' ]
+      }
+      else {
+        return [ i, parseInt(c.frets[i],10)];
+      }
+    }
+  );
   console.log("c: ",c);
-  console.log("container: ",container);
+  console.log("chart: ",chart);
   console.log("s: ",s);
   console.log("x: ",x);
 
-  var chart = new svguitar.SVGuitarChord(container);
-  chart.configure({
-      style: 'handdrawn',
-      title: c.chord
-    }).chord({
-      fingers: x
-      // barres: [ {fromString: 6, toString: 1, fret: c.capo, text: c.capo}]
+  //
 
-    }).draw();
+  chart.chord({
+      fingers: x,
+      barres: [ {fromString: 6, toString: 1, fret: c.capo, text: c.capo}]
+    }).configure({
+        style: 'handdrawn',
+        title: c.chord
+      }).draw();
 }
 
 function getChordTableRow(c) {
