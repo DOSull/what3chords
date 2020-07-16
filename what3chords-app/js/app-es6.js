@@ -118,10 +118,14 @@ const DATA = {};
 let GUITAR;
 
 $.when(
-  $.getJSON("./data/guitar-chords.json", function(data) {
-    DATA.chords = data.chords;
+  $.getJSON("./data/chords-compressed.json", function(data) {
+    DATA.chords = data;
     console.log(DATA.chords);
   }),
+  // $.getJSON("./data/guitar-chords.json", function(data) {
+  //   DATA.chords = data.chords;
+  //   console.log(DATA.chords);
+  // }),
   getSamples(),
   $.getJSON("./data/rect.geojson", function(data) {
     DATA.rect = data.features;
@@ -158,22 +162,27 @@ function getSamples() {
 
 let CHORDS = [];
 function processChordsData() {
-  let chordsFlattened = {};
-  for (let [key, variants] of Object.entries(DATA.chords)) {
-    for (let v of variants) {
-      for (let i = 0; i < v.positions.length; i++) {
+  for (let [key, variant] of Object.entries(DATA.chords)) {
+    for (let v = 0; v < variant.length; v++) {
+      // for (let i = 0; i < v.length; i++) {
         // console.log(v.positions[i].midi);
-        let position = v.positions[i];
-        CHORDS.push({
-          chord: `${v.key}${v.suffix} v${(i + 1)}`,
-          midi: position.midi,
-          frets: processFrets(position.frets),
-          capo: processCapo(position),
-          fingers: position.fingers.join(""),
-          bar: processBar(position)
-        });
-      }
+      CHORDS.push({
+        chord: `${key} v${(v + 1)}`,
+        frets: variant[v].positions,
+      });
     }
+      // for (let i = 0; i < v.positions.length; i++) {
+      //   // console.log(v.positions[i].midi);
+      //   let position = v.positions[i];
+      //   CHORDS.push({
+      //     chord: `${v.key}${v.suffix} v${(i + 1)}`,
+      //     midi: position.midi,
+      //     frets: processFrets(position.frets),
+      //     capo: processCapo(position),
+      //     fingers: position.fingers.join(""),
+      //     bar: processBar(position)
+      //   });
+      // }
   }
 }
 
