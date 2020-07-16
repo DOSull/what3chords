@@ -359,11 +359,11 @@ function getH3Code(c) {
   let h3Code = h3.geoToH3(c[1], c[0], H3_RES);
   console.log(h3Code);
   let decCode = h3ToDecimal(h3Code);
-  console.log(decCode);
+  // console.log(decCode);
   let result = nBaseX(decCode, N_CHORDS_H3);
   // check the return trip:
-  // let inv = inverseH3Code(result);
-  // console.log(inv);
+  let inv = inverseH3Code(result);
+  console.log(inv);
   return result;
 }
 
@@ -433,19 +433,16 @@ function nBaseX(n, x, alphabet) {
 function inverseH3Code(c3) {
   // retrieve the decimal index
   let index = c3[0] * N_CHORDS_H3 * N_CHORDS_H3 + c3[1] * N_CHORDS_H3 + c3[2];
-  // the rightmost bit is from the 10th level code
-  let bits = (index % 2 == 1) ? "1" : "0";
-  bits = retrieveLevel10(bits);
-  index = Math.floor(index / 2);
-  // next 17 bits are 7-ary digits encode as 3 bits
-  for (let i = 0; i < H3_RES - 1; i++) {
+  let bits = "";
+  // next 45 bits are 7-ary digits encode as 3 bits
+  for (let i = 0; i < H3_RES; i++) {
     bits = ((index % 7).toString(2).padStart(3, "0")) + bits;
     index = Math.floor(index / 7);
   }
   // leftmost 7 digits are those remaining
   bits = index.toString(2).padStart(7, "0") + bits;
 
-  // inverse any bitswapping
+  // invert any bitswapping
   bits = scrambleBySevens(bits, SEVENS_BCK);
   // return bitswapInverse(bits,BITSWAP);
   bits = H3_CODE.prefix + bits + H3_CODE.suffix;
@@ -474,7 +471,7 @@ function randomChoice(arr) {
 // Could add reverse in place option by coding 1: -1
 // although this would make constructing the BCK
 // coder a bit trickier
-const SEVENS_FWD = [2, 5, 0, 4, 3, 1, 8, 6, 7];
+const SEVENS_FWD = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14];
 const SEVENS_BCK = makeInverseScrambler(SEVENS_FWD);
 
 // better to make this a function to avoid making a global scope loop counter
@@ -487,15 +484,15 @@ function makeInverseScrambler(fwd) {
   return bck;
 }
 
-// takes the 37 bits and scrambles the middle from 8 to 34
+// scrambles from bit 8 of supplied
 // by triple-bit encoded 7s
 function scrambleBySevens(b, scrambler) {
-  let toScramble = b.slice(7, 34);
-  let result = Array(9);
-  for (let res = 0; res < 9; res++) {
+  let toScramble = b.slice(7);
+  let result = Array(H3_RES);
+  for (let res = 0; res < H3_RES; res++) {
     result[scrambler[res]] = toScramble.slice(res * 3, (res + 1) * 3);
   }
-  return b.slice(0, 7) + result.join("") + b.slice(34);
+  return b.slice(0, 7) + result.join("");
 }
 
 // ----------------------------------------
