@@ -9,7 +9,7 @@ let H3_CODE = {
   suffix: null,
   lastSigBit: 19 + 3 * H3_RES,
 }
-const MIDI_NOTES = [64, 59, 55, 50, 45, 40]
+const MIDI_NOTES = [40, 45, 50, 55, 59, 64]
 
 // determine if a theme 'dark' or 'light' has been
 // specified in the URL query string
@@ -166,14 +166,13 @@ function processChordsData() {
   for (let [key, variants] of Object.entries(DATA.chords)) {
     let v = 1;
     for (let variant of variants) {
-      // for (let i = 0; i < v.length; i++) {
-        // console.log(v.positions[i].midi);
+      let p = variant.positions.reverse();
       CHORDS.push({
         chord: `${key} v${v}`,
-        frets: processFrets(variant.positions),
-        midi: getNotes(variant.positions),
-        barres: getBarre(variant.positions),
-        position: getMinStoppedFret(variant.positions),
+        frets: processFrets(p),
+        midi: getNotes(p),
+        barres: getBarre(p),
+        position: getMinStoppedFret(p),
       });
       v++;
     }
