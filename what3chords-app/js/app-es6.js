@@ -2,13 +2,14 @@
 const WEB_MERC_LIMIT = 85.051129;
 
 const USE_H3 = true;
-const N_CHORDS_H3 = 2141;
-const H3_RES = 10;
+let N_CHORDS_H3;
+const H3_RES = 15;
 let H3_CODE = {
   prefix: null,
   suffix: null,
   lastSigBit: 19 + 3 * H3_RES,
 }
+const MIDI_NOTES = [64, 59, 55, 50, 45, 40]
 
 // determine if a theme 'dark' or 'light' has been
 // specified in the URL query string
@@ -162,13 +163,15 @@ function getSamples() {
 
 let CHORDS = [];
 function processChordsData() {
-  for (let [key, variant] of Object.entries(DATA.chords)) {
-    for (let v = 0; v < variant.length; v++) {
+  for (let [key, variants] of Object.entries(DATA.chords)) {
+    let v = 1;
+    for (let variant of variants) {
       // for (let i = 0; i < v.length; i++) {
         // console.log(v.positions[i].midi);
       CHORDS.push({
-        chord: `${key} v${(v + 1)}`,
-        frets: variant[v].positions,
+        chord: `${key} v${v}`,
+        frets: variant.positions,
+        midi: getNotes(variant.positions),
       });
     }
       // for (let i = 0; i < v.positions.length; i++) {
@@ -184,7 +187,17 @@ function processChordsData() {
       //   });
       // }
   }
+  N_CHORDS_H3 = CHORDS.length;
 }
+
+function getNotes(posn) {
+  let midi = [];
+  for (let i = 0; i < posn.length; i++) {
+    midi.push(posn[i] >= 0 ? posn[i] + MIDI_NOTES[i] : null);
+  }
+  return midi;
+}
+
 
 function processBar(posn) {
   if (posn.barres) {
@@ -296,10 +309,10 @@ function drawChord(c, chart) {
       }
     }
   );
-  console.log("c: ",c);
-  console.log("chart: ",chart);
-  console.log("s: ",s);
-  console.log("x: ",x);
+  // console.log("c: ",c);
+  // console.log("chart: ",chart);
+  // console.log("s: ",s);
+  // console.log("x: ",x);
 
   chart.chord({
       fingers: x,
@@ -344,11 +357,12 @@ function getH3Code(c) {
   // use the homebrew base X function to convert the decimal
   // H3 index into base 1692 to index into the chord array
   let h3Code = h3.geoToH3(c[1], c[0], H3_RES);
+  console.log(h3Code);
   let decCode = h3ToDecimal(h3Code);
+  console.log(decCode);
   let result = nBaseX(decCode, N_CHORDS_H3);
   // check the return trip:
   // let inv = inverseH3Code(result);
-  // console.log(h3Code);
   // console.log(inv);
   return result;
 }
@@ -378,12 +392,14 @@ function h3ToDecimal(idx) {
   // bin = bitswap(bin, BITSWAP);
 
   // the power of 7 we are currently working on
-  let pow = H3_RES - 1; // not using the 10th digit in the same way
+  // let pow = H3_RES - 1; // not using the 10th digit in the same way
+  let pow = H3_RES;
   // first 7 bits are region
   let result = parseInt(bin.slice(0, 7), 2) * (7 ** pow);
   // remaining bits untill the last three will be sliced
   // 3 at a time into base-7 digits
   let heptDigits = bin.slice(7);
+  // while (pow > 0) {
   while (pow > 0) {
     pow --; // decrement the power
     // add the next 7-digit to the results
@@ -392,7 +408,8 @@ function h3ToDecimal(idx) {
     heptDigits = heptDigits.slice(3);
   }
   // final bit... just use the middle one
-  return 2 * result + parseInt(heptDigits[1]);
+  return result;
+  // return 2 * result + parseInt(heptDigits[1]);
 }
 
 function nBaseX(n, x, alphabet) {
