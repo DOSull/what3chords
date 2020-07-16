@@ -173,8 +173,8 @@ function processChordsData() {
         frets: variant.positions,
         midi: getNotes(variant.positions),
       });
+      v++;
     }
-    v++;
       // for (let i = 0; i < v.positions.length; i++) {
       //   // console.log(v.positions[i].midi);
       //   let position = v.positions[i];
