@@ -357,13 +357,13 @@ function getH3Code(c) {
   // use the homebrew base X function to convert the decimal
   // H3 index into base 1692 to index into the chord array
   let h3Code = h3.geoToH3(c[1], c[0], H3_RES);
-  console.log(h3Code);
+  // console.log(h3Code);
   let decCode = h3ToDecimal(h3Code);
   // console.log(decCode);
   let result = nBaseX(decCode, N_CHORDS_H3);
   // check the return trip:
   let inv = inverseH3Code(result);
-  console.log(inv);
+  // console.log(inv);
   return result;
 }
 
@@ -471,7 +471,7 @@ function randomChoice(arr) {
 // Could add reverse in place option by coding 1: -1
 // although this would make constructing the BCK
 // coder a bit trickier
-const SEVENS_FWD = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14];
+const SEVENS_FWD = [4,3,2,1,0,9,8,7,6,5,14,13,12,11,10];
 const SEVENS_BCK = makeInverseScrambler(SEVENS_FWD);
 
 // better to make this a function to avoid making a global scope loop counter
