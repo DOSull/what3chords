@@ -170,23 +170,13 @@ function processChordsData() {
         // console.log(v.positions[i].midi);
       CHORDS.push({
         chord: `${key} v${v}`,
-        frets: variant.positions,
+        frets: processFrets(variant.positions),
         midi: getNotes(variant.positions),
+        barres: getBarre(variant.positions),
+        position: getMinStoppedFret(variant.positions),
       });
       v++;
     }
-      // for (let i = 0; i < v.positions.length; i++) {
-      //   // console.log(v.positions[i].midi);
-      //   let position = v.positions[i];
-      //   CHORDS.push({
-      //     chord: `${v.key}${v.suffix} v${(i + 1)}`,
-      //     midi: position.midi,
-      //     frets: processFrets(position.frets),
-      //     capo: processCapo(position),
-      //     fingers: position.fingers.join(""),
-      //     bar: processBar(position)
-      //   });
-      // }
   }
   N_CHORDS_H3 = CHORDS.length;
 }
@@ -199,32 +189,60 @@ function getNotes(posn) {
   return midi;
 }
 
+function processFrets(posn) {
+  let minFret = getMinStoppedFret(posn)
+  let strings = [1, 2, 3, 4, 5, 6];
+  return strings.map(
+    i => posn[i - 1] < 0 ?
+          [i, "x"] :
+          [i, posn[i - 1] - minFret + 1]
+  );
+}
 
-function processBar(posn) {
-  if (posn.barres) {
-    return posn.barres;
+function getMinFret(posn) {
+  return Math.min.apply(Math, posn.filter(x => x >= 0));
+}
+
+function getMinStoppedFret(posn) {
+  return Math.min.apply(Math, posn.filter(x => x > 0));
+}
+
+function getBarre(posn) {
+  let minStopped = getMinStoppedFret(posn);
+  let idx = posn.indexOf(minStopped);
+  let matches = [];
+  while (idx != -1) {
+    matches.push(idx);
+    idx = posn.indexOf(minStopped, idx + 1);
+  }
+  if (matches.length == 1) {
+    return [];
   } else {
-    return -1;
-  }
-
-}
-
-function processFrets(fretPositions) {
-  let symbols = [];
-  for (let fret of fretPositions) {
-    symbols.push(fret < 0 ? "X" : fret);
-  }
-  symbols = symbols.reverse()
-  return symbols.join("");
-}
-
-function processCapo(posn) {
-  if (posn.capo) {
-    return posn.baseFret;
-  } else {
-    return 1;
+    return [
+      {
+        fret: 1,
+        fromString: Math.max.apply(Math, matches) + 1,
+        toString: Math.min.apply(Math, matches) + 1,
+      }
+    ]
   }
 }
+
+// function processBar(posn) {
+//   if (posn.barres) {
+//     return posn.barres;
+//   } else {
+//     return -1;
+//   }
+// }
+//
+// function processCapo(posn) {
+//   if (posn.capo) {
+//     return posn.baseFret;
+//   } else {
+//     return 1;
+//   }
+// }
 
 // shut down the loading spinner
 function clearLoader() {
@@ -301,30 +319,30 @@ function drawChord(c, chart) {
   // s for strings
   var s = [1, 2, 3, 4, 5, 6];
   // x should be a [[string, fret], [string, fret], etc.] array of arrays
-  var x = s.map(function(e, i) {
-      if (c.frets[i] === 'X') {
-        return [ e, 'x' ]
-      }
-      else {
-        return [ e, parseInt(c.frets[i],10)]; //removed:  + c.capo - 1
-      }
-    }
-  );
+  // var x = s.map(function(e, i) {
+  //     if (c.frets[i] === 'X') {
+  //       return [ e, 'x' ]
+  //     }
+  //     else {
+  //       return [ e, parseInt(c.frets[i],10)]; //removed:  + c.capo - 1
+  //     }
+  //   }
+  // );
   // console.log("c: ",c);
   // console.log("chart: ",chart);
   // console.log("s: ",s);
   // console.log("x: ",x);
 
   chart.chord({
-      fingers: x,
-      barres: []
-      //barres: ((c.bar > 0) ? [{fromString: 6, toString: 1, fret: 1}] : [])
-      //barres: [ {fromString: 6, toString: 1, fret: c.capo, text: c.capo}]
-    }).configure({
-        //style: 'handdrawn',    // HANDDRAWN DOESNT WORK AT THE MOMENT
-        title: c.chord.replace('fr', ''),
-        position: c.capo
-      }).draw();
+    fingers: c.frets,
+    barres: c.barres, //[]
+    //barres: ((c.bar > 0) ? [{fromString: 6, toString: 1, fret: 1}] : [])
+    //barres: [ {fromString: 6, toString: 1, fret: c.capo, text: c.capo}]
+  }).configure({
+    //style: 'handdrawn',    // HANDDRAWN DOESNT WORK AT THE MOMENT
+    title: c.chord, //replace('fr', ''),
+    position: c.position,
+  }).draw();
 }
 
 function getChordTableRow(c) {
@@ -472,7 +490,8 @@ function randomChoice(arr) {
 // Could add reverse in place option by coding 1: -1
 // although this would make constructing the BCK
 // coder a bit trickier
-const SEVENS_FWD = [4,3,2,1,0,9,8,7,6,5,14,13,12,11,10];
+// const SEVENS_FWD = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14];
+const SEVENS_FWD = [0,5,10,1,6,11,2,7,12,3,8,13,4,9,14];
 const SEVENS_BCK = makeInverseScrambler(SEVENS_FWD);
 
 // better to make this a function to avoid making a global scope loop counter
