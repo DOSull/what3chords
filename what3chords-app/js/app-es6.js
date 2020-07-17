@@ -302,7 +302,13 @@ function setTooltip(object, x, y, c) {
     drawChord(CHORDS[codeToUse[0]], charts[0]);
     drawChord(CHORDS[codeToUse[1]], charts[1]);
     drawChord(CHORDS[codeToUse[2]], charts[2]);
-
+    chartSelectors.map(function(chartSelector) {
+          $(chartSelector).find("text").each(function() {
+            $(this).text($(this).text().replace('fr', ''));
+          }
+        )
+      }
+    )
     playChord(CHORDS[codeToUse[0]].midi,
               CHORDS[codeToUse[1]].midi,
               CHORDS[codeToUse[2]].midi);
