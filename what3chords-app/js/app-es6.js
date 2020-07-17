@@ -522,23 +522,23 @@ function playChord(notes1, notes2, notes3) {
   // see https://en.wikipedia.org/wiki/Strum#Strumming_patterns
   // and https://rockguitaruniverse.com/guitar-strumming-patterns/#The_Ramones_Pattern
   let pattern = "dudud-d-";
-  for (let i = 1; i <= chords.length; i++) {
-    let c = chords[i - 1];
-    let vol = -3 - chords[i-1].length; //adapt volume to number of notes being played
+  for (let bar = 1; bar <= chords.length; bar++) {
+    let theChord = chords[bar - 1];
+    let vol = -theChord.length; //adapt vol to num notes in the chord
     GUITAR.volume.value = vol;
-    // 4:4 time strummed up and down, missing the strum where pattern is -
-    if (i < chords.length) {
+    // 4:4 time strummed up and down, missing strum where pattern is -
+    if (bar < chords.length) {
       for (let p of pattern) {
         if (p != "-") {
-          strumChord(GUITAR, c, now, 0.02, 1.5 * durn);
+          strumChord(GUITAR, theChord, now, 0.02, 1.5 * durn);
         }
-        now = now + durn * (0.9 + 0.1 * Math.random());
-        c.reverse(); // to get down/up strums
+        now = now + durn * randomBetween(0.95, 1.05);
+        theChord.reverse(); // to get down/up strums
       }
       now = now + 0.0;
     } else {
       // last time, just play it once
-      strumChord(GUITAR, c, now, 0.01, 5 * durn);
+      strumChord(GUITAR, theChord, now, 0.01, 5 * durn);
     }
   }
 }
@@ -548,8 +548,12 @@ function strumChord (instrument, notes, now, gap, duration) {
   let t = now;
   for (let n of notes) {
     instrument.triggerAttackRelease(n, duration, t); //.connect(DIST);
-    t = t + gap * (0.9 + 0.1 * Math.random());
+    t = t + gap * randomBetween(0.95, 1.05);
   }
+}
+
+function randomBetween(lo, hi) {
+  return lo + Math.random() * (hi - lo);
 }
 
 function notesToFreq(n) {
