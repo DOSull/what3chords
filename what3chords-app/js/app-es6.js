@@ -331,6 +331,8 @@ function drawChord(c, chart) {
     style: 'handdrawn',    // HANDDRAWN DOESNT WORK AT THE MOMENT
     title: c.chord, //replace('fr', ''),
     position: c.position,
+    fixedDiagramPosition: true,
+    fretLabelFontSize: 72,
   }).draw();
 }
 
