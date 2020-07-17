@@ -508,6 +508,7 @@ function scrambleBySevens(b, scrambler) {
 // BRING THA NOIZ
 // ----------------------------------------
 //const DIST = new Tone.Distortion(0.5).toMaster();
+const REVERB = new Tone.Reverb().toMaster();
 
 function playChord(notes1, notes2, notes3) {
   let chords = [];
@@ -530,7 +531,7 @@ function playChord(notes1, notes2, notes3) {
     if (bar < chords.length) {
       for (let p of pattern) {
         if (p != "-") {
-          strumChord(GUITAR, theChord, now, 0.02, 1.5 * durn);
+          strumChord(GUITAR, theChord, now, 0.02, 1.5 * durn, false);
         }
         now = now + durn * randomBetween(0.95, 1.05);
         theChord.reverse(); // to get down/up strums
@@ -538,16 +539,20 @@ function playChord(notes1, notes2, notes3) {
       now = now + 0.0;
     } else {
       // last time, just play it once
-      strumChord(GUITAR, theChord, now, 0.01, 5 * durn);
+      strumChord(GUITAR, theChord, now, 0.01, 5 * durn, true);
     }
   }
 }
 
 // crude attempt to strum chord, not just play all strings at once
-function strumChord (instrument, notes, now, gap, duration) {
+function strumChord (instrument, notes, now, gap, duration, reverb) {
   let t = now;
   for (let n of notes) {
-    instrument.triggerAttackRelease(n, duration, t); //.connect(DIST);
+    if (reverb) {
+      instrument.triggerAttackRelease(n, duration, t).connect(REVERB);
+    } else {
+      instrument.triggerAttackRelease(n, duration, t); //.connect(DIST);
+    }
     t = t + gap * randomBetween(0.95, 1.05);
   }
 }
