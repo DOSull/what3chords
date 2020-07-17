@@ -164,17 +164,17 @@ function getSamples() {
 let CHORDS = [];
 function processChordsData() {
   for (let [key, variants] of Object.entries(DATA.chords)) {
-    let v = 1;
+    // let v = 1;
     for (let variant of variants) {
       let p = variant.positions.reverse();
       CHORDS.push({
-        chord: `${key} v${v}`,
+        chord: `${key}`, // v${v}`,
         frets: processFrets(p),
         midi: getNotes(p),
         barres: getBarre(p),
         position: getMinStoppedFret(p),
       });
-      v++;
+      // v++;
     }
   }
   N_CHORDS_H3 = CHORDS.length;
@@ -317,28 +317,12 @@ function setTooltip(object, x, y, c) {
 function drawChord(c, chart) {
   // s for strings
   var s = [1, 2, 3, 4, 5, 6];
-  // x should be a [[string, fret], [string, fret], etc.] array of arrays
-  // var x = s.map(function(e, i) {
-  //     if (c.frets[i] === 'X') {
-  //       return [ e, 'x' ]
-  //     }
-  //     else {
-  //       return [ e, parseInt(c.frets[i],10)]; //removed:  + c.capo - 1
-  //     }
-  //   }
-  // );
-  // console.log("c: ",c);
-  // console.log("chart: ",chart);
-  // console.log("s: ",s);
-  // console.log("x: ",x);
 
   chart.chord({
     fingers: c.frets,
     barres: c.barres, //[]
-    //barres: ((c.bar > 0) ? [{fromString: 6, toString: 1, fret: 1}] : [])
-    //barres: [ {fromString: 6, toString: 1, fret: c.capo, text: c.capo}]
   }).configure({
-    //style: 'handdrawn',    // HANDDRAWN DOESNT WORK AT THE MOMENT
+    style: 'handdrawn',    // HANDDRAWN DOESNT WORK AT THE MOMENT
     title: c.chord, //replace('fr', ''),
     position: c.position,
   }).draw();
