@@ -25,6 +25,7 @@ const LAYER_LIST = {};
 // not really used now there's no change in layers with zoom
 const LAYER_VISIBILITY = {
   "rect": true,
+  "h3": true,
 };
 
 const START_VIEW = {
@@ -69,30 +70,36 @@ function switchTheme() {
 // Geocoding stuff
 // -----------------------------------
 function GetMyLocationSong(pos) {
-    var crd = pos.coords;
-    console.log("Found geolocation. ",crd.longitude," ",crd.latitude);
-    //var geodiv = document.getElementById('geolocate');
-    //geodiv.innerHTML += `<br>Returned ${crd.longitude} ${crd.latitude}<br>`;
+  var crd = pos.coords;
+  console.log("Found geolocation. ",crd.longitude," ",crd.latitude);
+  //var geodiv = document.getElementById('geolocate');
+  //geodiv.innerHTML += `<br>Returned ${crd.longitude} ${crd.latitude}<br>`;
 
-    MY_DECKGL.setProps({
-          initialViewState: {
-            longitude:  crd.longitude,
-            latitude: crd.latitude,
-            zoom: 13,
-            transitionInterpolator: new deck.FlyToInterpolator({speed: 1.5}),
-            transitionDuration: 'auto',
-            onTransitionEnd: function() { setTooltip("something", 1.03 * window.innerWidth / 2, 1.03 * window.innerHeight / 2, [crd.latitude,crd.longitude]); }
-          }
-        }
-      );
-};
+  MY_DECKGL.setProps({
+    initialViewState: {
+      longitude: crd.longitude,
+      latitude: crd.latitude,
+      zoom: 13,
+      transitionInterpolator: new deck.FlyToInterpolator({speed: 1.5}),
+      transitionDuration: 'auto',
+      onTransitionEnd: function() {
+        setTooltip(
+          "something",
+          1.03 * window.innerWidth / 2,
+          1.03 * window.innerHeight / 2,
+          [crd.latitude,crd.longitude]
+        );
+      }
+    }
+  });
+}
 
 function GeolocationError(err){
   console.log("Attempted geolocation but failed.");
   console.warn(`ERROR(${err.code}): ${err.message}`);
   //var geodiv = document.getElementById('geolocate');
   //geodiv.innerHTML += `ERROR(${err.code}): ${err.message}`;
-};
+}
 
 function ClickGeolocator() {
   console.log("Attempting to get geolocation.")
@@ -263,7 +270,24 @@ function render() {
     onClick: info => setTooltip(info.object, info.x, info.y, info.coordinate),
     visible: LAYER_VISIBILITY.rect,
   });
-
+  // trying to figure out how to add a H3 layer
+  // LAYER_LIST.h3 = new deck.H3HexagonLayer({
+  //   id: "h3",
+  //   data: [
+  //     {
+  //       hex: '88283082b9fffff',
+  //       count: 96
+  //     },
+  //   ],
+  //   pickable: false,
+  //   wireframe: true,
+  //   filled: true,
+  //   extruded: false,
+  //   elevationScale: 1,
+  //   getHexagon: d => d.hex,
+  //   getFillColor: d => [255, 0, 0]
+  // });
+  //
   MY_DECKGL.setProps({
     layers: Object.values(LAYER_LIST),
   });
