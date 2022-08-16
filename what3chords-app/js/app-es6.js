@@ -390,7 +390,7 @@ function isValidH3Code(bits) {
 function getH3Code(c) {
   // use the homebrew base X function to convert the decimal
   // H3 index into base 1692 to index into the chord array
-  let h3Code = h3.geoToH3(c[1], c[0], H3_RES);
+  let h3Code = h3.latLngToCell(c[1], c[0], H3_RES);
   // console.log(h3Code);
   let decCode = h3ToDecimal(h3Code);
   // console.log(decCode);
