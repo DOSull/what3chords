@@ -15,8 +15,8 @@ const MIDI_NOTES = [40, 45, 50, 55, 59, 64]
 // specified in the URL query string
 let THEME = getThemeFromURL();
 const THEMES = {
-  dark: "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
-  light: "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json",
+  dark: "https://tiles.openfreemap.org/styles/dark",
+  light: "https://tiles.openfreemap.org/styles/positron",
 };
 
 // the layers the deck will include
