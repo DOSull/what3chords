@@ -72,8 +72,6 @@ function switchTheme() {
 function GetMyLocationSong(pos) {
   var crd = pos.coords;
   console.log("Found geolocation. ",crd.longitude," ",crd.latitude);
-  //var geodiv = document.getElementById('geolocate');
-  //geodiv.innerHTML += `<br>Returned ${crd.longitude} ${crd.latitude}<br>`;
 
   MY_DECKGL.setProps({
     initialViewState: {
@@ -97,8 +95,6 @@ function GetMyLocationSong(pos) {
 function GeolocationError(err){
   console.log("Attempted geolocation but failed.");
   console.warn(`ERROR(${err.code}): ${err.message}`);
-  //var geodiv = document.getElementById('geolocate');
-  //geodiv.innerHTML += `ERROR(${err.code}): ${err.message}`;
 }
 
 function ClickGeolocator() {
@@ -130,10 +126,6 @@ $.when(
     DATA.chords = data;
     console.log(DATA.chords);
   }),
-  // $.getJSON("./data/guitar-chords.json", function(data) {
-  //   DATA.chords = data.chords;
-  //   console.log(DATA.chords);
-  // }),
   getSamples(),
   $.getJSON("./data/rect.geojson", function(data) {
     DATA.rect = data.features;
@@ -234,22 +226,6 @@ function getBarre(posn) {
   }
 }
 
-// function processBar(posn) {
-//   if (posn.barres) {
-//     return posn.barres;
-//   } else {
-//     return -1;
-//   }
-// }
-//
-// function processCapo(posn) {
-//   if (posn.capo) {
-//     return posn.baseFret;
-//   } else {
-//     return 1;
-//   }
-// }
-
 // shut down the loading spinner
 function clearLoader() {
   document.getElementById("loaderDiv").style.display = "none";
@@ -270,24 +246,6 @@ function render() {
     onClick: info => setTooltip(info.object, info.x, info.y, info.coordinate),
     visible: LAYER_VISIBILITY.rect,
   });
-  // trying to figure out how to add a H3 layer
-  // LAYER_LIST.h3 = new deck.H3HexagonLayer({
-  //   id: "h3",
-  //   data: [
-  //     {
-  //       hex: '88283082b9fffff',
-  //       count: 96
-  //     },
-  //   ],
-  //   pickable: false,
-  //   wireframe: true,
-  //   filled: true,
-  //   extruded: false,
-  //   elevationScale: 1,
-  //   getHexagon: d => d.hex,
-  //   getFillColor: d => [255, 0, 0]
-  // });
-  //
   MY_DECKGL.setProps({
     layers: Object.values(LAYER_LIST),
   });
@@ -591,183 +549,3 @@ function notesToFreq(n) {
   return n.map(x => Tone.Midi(x).toFrequency());
 }
 
-
-// --------------------------------------
-// THE DNA JUNKYARD
-// --------------------------------------
-
-// --------------------------------------
-// Long-lat grid based approach
-// --------------------------------------
-//
-// const LON_RES = 130400;
-// const LAT_RES = 65200;
-// const CAT_SHUFFLES = 15;
-// const N_CHORDS_LL = 2141;
-//
-// // get a 3 digit sequence of 0..2140 indices into the Array of chords
-// function getCode(c) {
-//   // get x and y values that are integers 0..130400, 0..65200
-//   let xy = [
-//     Math.round(rescale(c[0], -180, 180, 0, LON_RES)),
-//     Math.round(rescale(c[1], -WEB_MERC_LIMIT, WEB_MERC_LIMIT, 0, LAT_RES))
-//   ];
-//   // rescale to unit square
-//   xy = [
-//     rescale(xy[0], 0, LON_RES, 0, 1),
-//     rescale(xy[1], 0, LAT_RES, 0, 1)
-//   ]
-//   // shuffle them
-//   xy = doTheShuffle(xy, CAT_SHUFFLES);
-//   // round back to ints
-//   let x = Math.round(rescale(xy[0], 0, 1, 0, LON_RES));
-//   let y = Math.round(rescale(xy[1], 0, 1, 0, LAT_RES));
-//
-//   // convert to an index
-//   let i = x + y * LON_RES;
-//   return nBaseX(i, N_CHORDS_LL);
-// }
-//
-//
-// // rescale x from xmin-xmax to mn-mx
-// function rescale(x, xmin, xmax, mn, mx) {
-//   return mn + (mx - mn) * (x - xmin) / (xmax - xmin);
-// }
-//
-//
-// // shuffle the lon lat in a unit square using Arnold's Cat, see
-// // https://en.wikipedia.org/wiki/Arnold's_cat_map
-// function doTheShuffle(c, n) {
-//   let xy = c;
-//   for (let i = 0; i < n; i ++) {
-//     xy = arnoldsCat(xy);
-//   }
-//   return xy;
-// }
-//
-// function arnoldsCat(xy) {
-//   return [(2 * xy[0] + xy[1]) % 1, (xy[0] + xy[1]) % 1];
-// }
-
-
-// Competing scrambler
-// a dictionary of forward bit swaps of the 34 bits from
-// position 13 to position 46
-// const H3_SCRAMBLE = {
-//    0:  7,  1: 10,  2: 13,  3: 16,  4: 19,  5: 22,  6: 25,  7: 28,  8: 31,
-//    9:  8, 10: 11, 11: 14, 12: 17, 13: 20, 14: 23, 15: 26, 16: 29, 17: 32,
-//   18:  9, 19: 12, 20: 15, 21: 18, 22: 21, 23: 24, 24: 27, 25: 30, 26: 33,
-//   27:  6, 28:  5, 29:  4, 30:  3, 31:  2, 32:  1, 33:  0
-// };
-// // inversion of the forward scrambler
-// const H3_DESCRAMBLE =
-//   Object.fromEntries(Object.entries(H3_SCRAMBLE).map(kv => kv.reverse()));
-//
-// // s: string to scramble
-// // forward: use the forward scramble if true, inverse if false
-// function scramble(s, forward) {
-//   let n = Object.entries(H3_SCRAMBLE).map(x => x[0]);
-//   if (forward) {
-//     return n.map(b => s[H3_SCRAMBLE[b]]).join("");
-//   } else {
-//     return n.map(b => s[H3_DESCRAMBLE[b]]).join("");
-//   }
-// }
-
-
-// --------------------------------------
-// Luke's H3 bitswapper code - not level 9 compatible
-// --------------------------------------
-// functions bitswap and bitswapInverse exist to bridge between
-// the relative spatial monotony (autocorrelation in chords)
-// of just using h3 indices and the total chord randomness
-// that would characterize other indices.
-//
-// the number and location of bits swapped determine the nature
-// of the randomness added.
-//
-// Consider: Swapping one of the most variable (rightmost) bits
-// with one of the least variable (leftmost). this increases (in most places,
-// doubles) the number of first chords available locally (from 1 to 2).
-// It also (in most places) halves the number of third chords that would be used
-// in that locality (from ~1700 to ~850.)
-//
-// There is some net change in worldwide chord diversity--
-// There is a reshuffling of chords with other places,
-// with many localities gaining diversity (in chord 1)
-// and gaining character that differentiates them from elsewhere (in chord 3.)
-// However, because of the way that h3 is encoded in binary, attempting
-// some bitswaps on some bitstrings would create invalid h3 strings.
-// We trap those out below, disallowing those swaps, while allowing the
-// rest of the swaps in the bitswap.
-//
-// Swapping accomplished by the array of arrays BITSWAP.
-// Each array in BITSWAP contains two bit positions that should be swapped.
-// This is done left-to-right for the direct transformation bitswap () and
-// done right-to-left for the inverse.
-//
-// note tha
-
-// var BITSWAP = [
-//   [6, 3 * H3_RES - 1],
-//   [12, 3 * H3_RES - 2]
-// ];
-//
-// function swapbits(twoPosArray,bits) {
-//   var newbits = bits;
-//   newbits = newbits.substr(0, twoPosArray[0]) + bits.substr(twoPosArray[1],1) + newbits.substr(twoPosArray[0]+1);
-//   newbits = newbits.substr(0, twoPosArray[1]) + bits.substr(twoPosArray[0],1) + newbits.substr(twoPosArray[1]+1);
-//   return newbits;
-// }
-//
-// function bitswap(bits, BITSWAPlist) {
-//   var swappedbits = bits;
-//   for(var currSwapPos = 0; currSwapPos < BITSWAPlist.length; currSwapPos++) {
-//     var candidatebits = swapbits(BITSWAPlist[currSwapPos],swappedbits);
-//     if (isValidH3Code(candidatebits)) {
-//       swappedbits = candidatebits;
-//     }
-//   }
-//   return swappedbits;
-// }
-//
-// function bitswapInverse(bits, BITSWAPlist) {
-//   return bitswap(bits, BITSWAPlist.reverse());
-// }
-
-// The makings of a more complicated H3 scrambler
-// const SEVENS_FWD = [[0], [1, lshift], [2, rev], [3, rshift],
-//                     [4], [5], [6], [7], [8]];
-// const SEVENS_BCK = makeReverseScrambler(SEVENS_FWD);
-//
-// function makeReverseScrambler(fwd) {
-//   let bck = Array(fwd.length);
-//   for (let f = 0; f < bck.length; f++) {
-//     let change = fwd[f];
-//     let t = change[0];
-//     bck[t] = [f];
-//     if (change.length > 1) {
-//       let op = change[1];
-//       switch (op) {
-//         case rev:
-//           bck[t].push(rev);
-//           break;
-//         case lshift:
-//           bck[t].push(rshift);
-//           break;
-//         default:
-//           bck[t].push(lshift);
-//       }
-//     }
-//   }
-//   return bck;
-// }
-// function rev(s) {
-//   return s.split("").reverse().join("");
-// }
-// function lshift(s) {
-//   return s.slice(1) + s[0];
-// }
-// function rshift(s) {
-//   return s[2] + s.slice[0, 2];
-// }
